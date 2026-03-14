@@ -95,7 +95,7 @@ import ColorSelector from './ColorSelector.astro';
             id="image-overlay"
             src=""
             alt=""
-            class="hidden absolute object-contain opacity-[0.92]"
+            class="hidden absolute object-cover opacity-[0.92]"
             style="inset: 0; width: 100%; height: 100%; mix-blend-mode: multiply;"
             draggable="false"
           />
@@ -191,7 +191,7 @@ import ColorSelector from './ColorSelector.astro';
     setTimeout(() => uploadError.classList.add('hidden'), 4000);
   }
 
-  /* ── Image processing (rotate portrait → landscape, downscale to fit zone) ── */
+  /* ── Image processing (rotate portrait → landscape, crop-to-fill zone) ── */
   async function processImage(file: File): Promise<string> {
     const bitmap = await createImageBitmap(file);
     const isPortrait = bitmap.height > bitmap.width;
@@ -200,38 +200,36 @@ import ColorSelector from './ColorSelector.astro';
     const srcW = isPortrait ? bitmap.height : bitmap.width;
     const srcH = isPortrait ? bitmap.width  : bitmap.height;
 
-    const MAX_W = 1100;
-    const MAX_H = 460;
-    const needsResize = srcW > MAX_W || srcH > MAX_H;
+    const TARGET_W = 1100;
+    const TARGET_H = 460;
 
-    // Skip canvas entirely if no rotation and no resize needed
-    if (!isPortrait && !needsResize) {
-      bitmap.close();
-      return URL.createObjectURL(file);
-    }
+    // Cover scale: image fully covers the target, excess is cropped
+    const scale = Math.max(TARGET_W / srcW, TARGET_H / srcH);
+    const scaledW = Math.round(srcW * scale);
+    const scaledH = Math.round(srcH * scale);
 
-    // Calculate output dimensions (scale down preserving aspect ratio)
-    let outW = srcW;
-    let outH = srcH;
-    if (needsResize) {
-      const scale = Math.min(MAX_W / srcW, MAX_H / srcH);
-      outW = Math.round(srcW * scale);
-      outH = Math.round(srcH * scale);
-    }
+    // Center-crop offsets (negative values crop the excess)
+    const offsetX = Math.round((TARGET_W - scaledW) / 2);
+    const offsetY = Math.round((TARGET_H - scaledH) / 2);
 
     const canvas = document.createElement('canvas');
-    canvas.width = outW;
-    canvas.height = outH;
+    canvas.width = TARGET_W;
+    canvas.height = TARGET_H;
     const ctx = canvas.getContext('2d')!;
 
     if (isPortrait) {
-      // Rotate 90° CW: swap axes, then draw
-      ctx.translate(outW, 0);
+      // Rotate 90° CW: swap axes, then draw into rotated space
+      ctx.translate(TARGET_W, 0);
       ctx.rotate(Math.PI / 2);
-      // After rotation, drawing surface is outH × outW
-      ctx.drawImage(bitmap, 0, 0, outH, outW);
+      // In rotated space the canvas is TARGET_H × TARGET_W
+      const rScale = Math.max(TARGET_H / bitmap.width, TARGET_W / bitmap.height);
+      const rW = Math.round(bitmap.width * rScale);
+      const rH = Math.round(bitmap.height * rScale);
+      const rOffX = Math.round((TARGET_H - rW) / 2);
+      const rOffY = Math.round((TARGET_W - rH) / 2);
+      ctx.drawImage(bitmap, rOffX, rOffY, rW, rH);
     } else {
-      ctx.drawImage(bitmap, 0, 0, outW, outH);
+      ctx.drawImage(bitmap, offsetX, offsetY, scaledW, scaledH);
     }
 
     bitmap.close();
