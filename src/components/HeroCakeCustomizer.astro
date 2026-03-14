@@ -191,24 +191,52 @@ import ColorSelector from './ColorSelector.astro';
     setTimeout(() => uploadError.classList.add('hidden'), 4000);
   }
 
-  /* ── Image processing (portrait → landscape rotation) ──── */
+  /* ── Image processing (rotate portrait + pad to zone aspect ratio) ── */
   async function processImage(file: File): Promise<string> {
     const bitmap = await createImageBitmap(file);
+
+    // Step 1: Get effective dimensions (rotate portrait → landscape)
     const isPortrait = bitmap.height > bitmap.width;
+    const srcW = isPortrait ? bitmap.height : bitmap.width;
+    const srcH = isPortrait ? bitmap.width : bitmap.height;
+
+    // Step 2: Calculate target canvas size to match zone aspect ratio (1.59:1)
+    const ZONE_ASPECT = 1.59;
+    const srcAspect = srcW / srcH;
+    let canvasW: number, canvasH: number;
+
+    if (srcAspect > ZONE_ASPECT) {
+      // Image is wider than zone — pad height
+      canvasW = srcW;
+      canvasH = Math.round(srcW / ZONE_ASPECT);
+    } else if (srcAspect < ZONE_ASPECT) {
+      // Image is narrower than zone — pad width
+      canvasH = srcH;
+      canvasW = Math.round(srcH * ZONE_ASPECT);
+    } else {
+      canvasW = srcW;
+      canvasH = srcH;
+    }
 
     const canvas = document.createElement('canvas');
+    canvas.width = canvasW;
+    canvas.height = canvasH;
     const ctx = canvas.getContext('2d')!;
 
+    // Fill with white (matches cake surface)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    // Center the image on the canvas
+    const offsetX = Math.round((canvasW - srcW) / 2);
+    const offsetY = Math.round((canvasH - srcH) / 2);
+
     if (isPortrait) {
-      canvas.width = bitmap.height;
-      canvas.height = bitmap.width;
-      ctx.translate(canvas.width, 0);
+      ctx.translate(offsetX + srcW, offsetY);
       ctx.rotate(Math.PI / 2);
       ctx.drawImage(bitmap, 0, 0);
     } else {
-      canvas.width = bitmap.width;
-      canvas.height = bitmap.height;
-      ctx.drawImage(bitmap, 0, 0);
+      ctx.drawImage(bitmap, offsetX, offsetY);
     }
 
     bitmap.close();
