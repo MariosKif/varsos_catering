@@ -191,7 +191,7 @@ import ColorSelector from './ColorSelector.astro';
     setTimeout(() => uploadError.classList.add('hidden'), 4000);
   }
 
-  /* ── Image processing (rotate portrait → landscape, crop-to-fill zone) ── */
+  /* ── Image processing (rotate portrait → landscape, fit + blur-fill zone) ── */
   async function processImage(file: File): Promise<string> {
     const bitmap = await createImageBitmap(file);
     const isPortrait = bitmap.height > bitmap.width;
@@ -203,34 +203,48 @@ import ColorSelector from './ColorSelector.astro';
     const TARGET_W = 1100;
     const TARGET_H = 460;
 
-    // Cover scale: image fully covers the target, excess is cropped
-    const scale = Math.max(TARGET_W / srcW, TARGET_H / srcH);
-    const scaledW = Math.round(srcW * scale);
-    const scaledH = Math.round(srcH * scale);
-
-    // Center-crop offsets (negative values crop the excess)
-    const offsetX = Math.round((TARGET_W - scaledW) / 2);
-    const offsetY = Math.round((TARGET_H - scaledH) / 2);
-
     const canvas = document.createElement('canvas');
     canvas.width = TARGET_W;
     canvas.height = TARGET_H;
     const ctx = canvas.getContext('2d')!;
 
-    if (isPortrait) {
-      // Rotate 90° CW: swap axes, then draw into rotated space
-      ctx.translate(TARGET_W, 0);
-      ctx.rotate(Math.PI / 2);
-      // In rotated space the canvas is TARGET_H × TARGET_W
-      const rScale = Math.max(TARGET_H / bitmap.width, TARGET_W / bitmap.height);
-      const rW = Math.round(bitmap.width * rScale);
-      const rH = Math.round(bitmap.height * rScale);
-      const rOffX = Math.round((TARGET_H - rW) / 2);
-      const rOffY = Math.round((TARGET_W - rH) / 2);
-      ctx.drawImage(bitmap, rOffX, rOffY, rW, rH);
-    } else {
-      ctx.drawImage(bitmap, offsetX, offsetY, scaledW, scaledH);
+    // Helper: draw the bitmap (handling portrait rotation) at given rect
+    function drawBitmap(x: number, y: number, w: number, h: number) {
+      if (isPortrait) {
+        ctx.save();
+        // Translate to center of target rect, rotate, draw with swapped dims
+        ctx.translate(x + w / 2, y + h / 2);
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(bitmap, -h / 2, -w / 2, h, w);
+        ctx.restore();
+      } else {
+        ctx.drawImage(bitmap, x, y, w, h);
+      }
     }
+
+    // 1) Background: blurred, enlarged version covering the full canvas
+    const coverScale = Math.max(TARGET_W / srcW, TARGET_H / srcH);
+    const bgW = Math.round(srcW * coverScale);
+    const bgH = Math.round(srcH * coverScale);
+    const bgX = Math.round((TARGET_W - bgW) / 2);
+    const bgY = Math.round((TARGET_H - bgH) / 2);
+
+    ctx.filter = 'blur(20px)';
+    drawBitmap(bgX, bgY, bgW, bgH);
+    ctx.filter = 'none';
+
+    // Darken the blurred background slightly so the sharp image pops
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(0, 0, TARGET_W, TARGET_H);
+
+    // 2) Foreground: sharp image fitted inside (preserving aspect ratio)
+    const fitScale = Math.min(TARGET_W / srcW, TARGET_H / srcH);
+    const fgW = Math.round(srcW * fitScale);
+    const fgH = Math.round(srcH * fitScale);
+    const fgX = Math.round((TARGET_W - fgW) / 2);
+    const fgY = Math.round((TARGET_H - fgH) / 2);
+
+    drawBitmap(fgX, fgY, fgW, fgH);
 
     bitmap.close();
 
