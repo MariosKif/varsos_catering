@@ -95,7 +95,7 @@ import ColorSelector from './ColorSelector.astro';
             id="image-overlay"
             src=""
             alt=""
-            class="hidden absolute object-cover opacity-[0.92]"
+            class="hidden absolute object-contain opacity-[0.92]"
             style="inset: 0; width: 100%; height: 100%; mix-blend-mode: multiply;"
             draggable="false"
           />
@@ -191,52 +191,47 @@ import ColorSelector from './ColorSelector.astro';
     setTimeout(() => uploadError.classList.add('hidden'), 4000);
   }
 
-  /* ── Image processing (rotate portrait + pad to zone aspect ratio) ── */
+  /* ── Image processing (rotate portrait → landscape, downscale to fit zone) ── */
   async function processImage(file: File): Promise<string> {
     const bitmap = await createImageBitmap(file);
-
-    // Step 1: Get effective dimensions (rotate portrait → landscape)
     const isPortrait = bitmap.height > bitmap.width;
+
+    // Effective dimensions after potential rotation
     const srcW = isPortrait ? bitmap.height : bitmap.width;
-    const srcH = isPortrait ? bitmap.width : bitmap.height;
+    const srcH = isPortrait ? bitmap.width  : bitmap.height;
 
-    // Step 2: Calculate target canvas size to match zone aspect ratio (1.59:1)
-    const ZONE_ASPECT = 1.59;
-    const srcAspect = srcW / srcH;
-    let canvasW: number, canvasH: number;
+    const MAX_W = 1100;
+    const MAX_H = 460;
+    const needsResize = srcW > MAX_W || srcH > MAX_H;
 
-    if (srcAspect > ZONE_ASPECT) {
-      // Image is wider than zone — pad height
-      canvasW = srcW;
-      canvasH = Math.round(srcW / ZONE_ASPECT);
-    } else if (srcAspect < ZONE_ASPECT) {
-      // Image is narrower than zone — pad width
-      canvasH = srcH;
-      canvasW = Math.round(srcH * ZONE_ASPECT);
-    } else {
-      canvasW = srcW;
-      canvasH = srcH;
+    // Skip canvas entirely if no rotation and no resize needed
+    if (!isPortrait && !needsResize) {
+      bitmap.close();
+      return URL.createObjectURL(file);
+    }
+
+    // Calculate output dimensions (scale down preserving aspect ratio)
+    let outW = srcW;
+    let outH = srcH;
+    if (needsResize) {
+      const scale = Math.min(MAX_W / srcW, MAX_H / srcH);
+      outW = Math.round(srcW * scale);
+      outH = Math.round(srcH * scale);
     }
 
     const canvas = document.createElement('canvas');
-    canvas.width = canvasW;
-    canvas.height = canvasH;
+    canvas.width = outW;
+    canvas.height = outH;
     const ctx = canvas.getContext('2d')!;
 
-    // Fill with white (matches cake surface)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvasW, canvasH);
-
-    // Center the image on the canvas
-    const offsetX = Math.round((canvasW - srcW) / 2);
-    const offsetY = Math.round((canvasH - srcH) / 2);
-
     if (isPortrait) {
-      ctx.translate(offsetX + srcW, offsetY);
+      // Rotate 90° CW: swap axes, then draw
+      ctx.translate(outW, 0);
       ctx.rotate(Math.PI / 2);
-      ctx.drawImage(bitmap, 0, 0);
+      // After rotation, drawing surface is outH × outW
+      ctx.drawImage(bitmap, 0, 0, outH, outW);
     } else {
-      ctx.drawImage(bitmap, offsetX, offsetY);
+      ctx.drawImage(bitmap, 0, 0, outW, outH);
     }
 
     bitmap.close();
@@ -244,7 +239,7 @@ import ColorSelector from './ColorSelector.astro';
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
         resolve(URL.createObjectURL(blob!));
-      }, 'image/jpeg', 0.92);
+      }, file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.92);
     });
   }
 
