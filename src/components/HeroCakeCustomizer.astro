@@ -69,8 +69,8 @@ import ColorSelector from './ColorSelector.astro';
           src="/images/cake-base.jpg"
           alt="Βάση τούρτας με λευκή περιοχή εκτύπωσης και ροζ γλάσο"
           class="block w-full h-auto transition-[filter] duration-300 ease-in-out"
-          width="768"
-          height="514"
+          width="1536"
+          height="1024"
           draggable="false"
         />
 
@@ -82,11 +82,11 @@ import ColorSelector from './ColorSelector.astro';
           id="overlay-container"
           class="pointer-events-none absolute overflow-hidden"
           style="
-            left: 14.58%;
-            top: 9.92%;
-            width: 68.88%;
-            height: 51.17%;
-            clip-path: polygon(0% 6.1%, 86.4% 0%, 100% 87.5%, 3.6% 100%);
+            left: 15.36%;
+            top: 17.19%;
+            width: 71.42%;
+            height: 45.02%;
+            clip-path: polygon(4% 1.3%, 94.4% 0%, 100% 99.6%, 0% 98.9%);
           "
           aria-hidden="true"
         >
@@ -191,16 +191,45 @@ import ColorSelector from './ColorSelector.astro';
     setTimeout(() => uploadError.classList.add('hidden'), 4000);
   }
 
+  /* ── Image processing (portrait → landscape rotation) ──── */
+  async function processImage(file: File): Promise<string> {
+    const bitmap = await createImageBitmap(file);
+    const isPortrait = bitmap.height > bitmap.width;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+
+    if (isPortrait) {
+      canvas.width = bitmap.height;
+      canvas.height = bitmap.width;
+      ctx.translate(canvas.width, 0);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(bitmap, 0, 0);
+    } else {
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      ctx.drawImage(bitmap, 0, 0);
+    }
+
+    bitmap.close();
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(URL.createObjectURL(blob!));
+      }, 'image/jpeg', 0.92);
+    });
+  }
+
   /* ── Upload handling ────────────────────────────────────── */
   let objectUrl: string | null = null;
 
-  function showImage(file: File) {
+  async function showImage(file: File) {
     const error = validateFile(file);
     if (error) { showError(error); return; }
 
     if (objectUrl) URL.revokeObjectURL(objectUrl);
 
-    objectUrl = URL.createObjectURL(file);
+    objectUrl = await processImage(file);
     overlayImg.src = objectUrl;
     overlayImg.alt = 'Προεπισκόπηση σχεδίου τούρτας';
     overlayImg.classList.remove('hidden');
