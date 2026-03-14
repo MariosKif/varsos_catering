@@ -1,0 +1,62 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+---
+
+<header class="fixed inset-x-0 top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100/80">
+  <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+    <a href="/" class="flex items-center gap-2 text-xl font-heading font-bold tracking-tight text-gray-900">
+      <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">V</span>
+      Varsos Catering
+    </a>
+    <div class="hidden items-center gap-8 text-sm font-medium text-gray-600 sm:flex">
+      <a href="/" class:list={['transition-colors hover:text-brand-600', currentPath === '/' && 'text-brand-600']}>Αρχική</a>
+      <a href="/finger-food" class:list={['transition-colors hover:text-brand-600', currentPath === '/finger-food' && 'text-brand-600']}>Finger Food</a>
+      <a href="/paketa-prosferon" class:list={['transition-colors hover:text-brand-600', currentPath === '/paketa-prosferon' && 'text-brand-600']}>Πακέτα</a>
+      <a href="/proionta-times" class:list={['transition-colors hover:text-brand-600', currentPath === '/proionta-times' && 'text-brand-600']}>Προϊόντα</a>
+      <a href="/epikoinonia" class:list={['transition-colors hover:text-brand-600', currentPath === '/epikoinonia' && 'text-brand-600']}>Επικοινωνία</a>
+    </div>
+    {/* mobile menu button */}
+    <button
+      type="button"
+      id="mobile-menu-btn"
+      class="flex sm:hidden items-center justify-center h-10 w-10 rounded-lg text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+      aria-label="Μενού"
+      aria-expanded="false"
+    >
+      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  </nav>
+  {/* mobile dropdown */}
+  <div id="mobile-menu" class="hidden border-t border-gray-100 bg-white px-4 pb-4 sm:hidden">
+    <div class="flex flex-col gap-3 pt-3 text-sm font-medium text-gray-600">
+      <a href="/" class="rounded-lg px-3 py-2 hover:bg-gray-50">Αρχική</a>
+      <a href="/finger-food" class="rounded-lg px-3 py-2 hover:bg-gray-50">Finger Food</a>
+      <a href="/paketa-prosferon" class="rounded-lg px-3 py-2 hover:bg-gray-50">Πακέτα Προσφορών</a>
+      <a href="/proionta-times" class="rounded-lg px-3 py-2 hover:bg-gray-50">Προϊόντα & Τιμές</a>
+      <a href="/epikoinonia" class="rounded-lg px-3 py-2 hover:bg-gray-50">Επικοινωνία</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  if (menuBtn && menu) {
+    menuBtn.addEventListener('click', () => {
+      const open = menu.classList.toggle('hidden');
+      menuBtn.setAttribute('aria-expanded', String(!open));
+    });
+    menu.querySelectorAll('a').forEach(link =>
+      link.addEventListener('click', () => {
+        menu.classList.add('hidden');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      })
+    );
+  }
+</script>

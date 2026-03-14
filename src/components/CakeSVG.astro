@@ -1,0 +1,219 @@
+---
+/**
+ * CakeSVG — Inline SVG rectangular sheet cake in 3/4 perspective.
+ *
+ * Matches cake-base.jpg: rectangular cake viewed from a slightly elevated
+ * front-right angle. Thick white fondant body, thin pink piped frosting
+ * border along top and bottom edges, white print zone on top.
+ *
+ * Key geometry (viewBox 0 0 800 540):
+ *   - Top surface: narrow parallelogram (perspective foreshortening)
+ *   - Front face: large white rectangle (main visible area)
+ *   - Right side: narrow sliver for 3D
+ *   - Cake board: slightly larger, peeking out beneath
+ *
+ * Classes for JS color targeting:
+ *   .cake-frosting       — main pink piping strokes
+ *   .cake-frosting-light  — highlight on piping
+ */
+---
+
+<svg
+  id="cake-svg"
+  viewBox="0 0 800 540"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Τούρτα με δυνατότητα προσαρμογής χρώματος και εικόνας"
+  class="w-full h-auto"
+>
+  <title>Προσαρμοζόμενη τούρτα</title>
+
+  <defs>
+    <linearGradient id="front-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdfdfd" />
+      <stop offset="100%" stop-color="#efefef" />
+    </linearGradient>
+    <linearGradient id="side-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f0f0f0" />
+      <stop offset="100%" stop-color="#e0e0e0" />
+    </linearGradient>
+    <linearGradient id="top-grad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#fafafa" />
+      <stop offset="100%" stop-color="#f5f5f5" />
+    </linearGradient>
+    <filter id="cake-shadow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+    </filter>
+    {/* Clip for user image on print zone */}
+    <clipPath id="print-zone-clip">
+      <polygon points="128,108 610,72 640,232 150,262" />
+    </clipPath>
+  </defs>
+
+  {/* ── Ground shadow ── */}
+  <ellipse cx="400" cy="505" rx="300" ry="28" fill="rgba(0,0,0,0.07)" filter="url(#cake-shadow)" />
+
+  {/* ── Cake board — white, slightly larger than cake ── */}
+  <polygon points="75,440 660,395 685,410 90,458" fill="#f3f3f3" stroke="#e0e0e0" stroke-width="1" />
+  <polygon points="90,458 685,410 682,415 87,463" fill="#e8e8e8" />
+
+  {/* ══════════════════════════════════════════════════════
+      CAKE BODY
+  ══════════════════════════════════════════════════════ */}
+
+  {/* ── Right side face ── */}
+  <polygon points="635,90 660,395 685,410 660,105" fill="url(#side-grad)" />
+  <line x1="648" y1="98" x2="673" y2="403" stroke="#e6e6e6" stroke-width="0.5" />
+
+  {/* ── Front face (the big visible white area) ── */}
+  <polygon points="100,120 635,90 660,395 115,440" fill="url(#front-grad)" />
+  {/* Subtle horizontal line — fondant seam */}
+  <line x1="107" y1="280" x2="648" y2="243" stroke="#ebebeb" stroke-width="1" />
+
+  {/* ── Top surface ── */}
+  <polygon points="100,120 635,90 660,105 120,135" fill="url(#top-grad)" />
+
+  {/* ══════════════════════════════════════════════════════
+      WHITE PRINT ZONE (on top surface, inset from edges)
+  ══════════════════════════════════════════════════════ */}
+  <polygon points="128,108 610,72 640,232 150,262" fill="#ffffff" />
+
+  {/* ── User image clip area ── */}
+  <g clip-path="url(#print-zone-clip)">
+    <image
+      id="cake-user-image"
+      x="118"
+      y="62"
+      width="532"
+      height="210"
+      href=""
+      preserveAspectRatio="xMidYMid slice"
+      class="hidden"
+      opacity="0.90"
+      style="mix-blend-mode: multiply;"
+    />
+
+    {/* Placeholder */}
+    <g id="cake-placeholder">
+      <polygon points="128,108 610,72 640,232 150,262" fill="#ffffff" opacity="0.25" />
+      <g transform="translate(365, 140)" stroke="#bbb" stroke-width="1.6" fill="none">
+        <rect x="0" y="0" width="28" height="21" rx="3" />
+        <circle cx="8" cy="7" r="3" />
+        <path d="M2,18 L9,11 L15,16 L20,10 L26,15" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+      <text x="382" y="182" text-anchor="middle" font-size="13" font-weight="500" fill="#aaa" font-family="system-ui, sans-serif">
+        Η εικόνα σου εδώ
+      </text>
+    </g>
+  </g>
+
+  {/* ══════════════════════════════════════════════════════
+      FROSTING PIPING — thin shell/rope border
+      Stroke-width 7-8 for the main pipe, 2-3 for highlight.
+  ══════════════════════════════════════════════════════ */}
+
+  {/* ── Top border — back edge (along top of top surface) ── */}
+  <path
+    class="cake-frosting"
+    d="M100,120 Q108,115 118,116 Q128,118 135,115 Q145,112 155,114 Q165,116 175,113 Q185,110 195,112 Q205,114 215,111 Q225,108 235,110 Q245,112 255,109 Q265,106 275,108 Q285,110 295,107 Q305,104 315,106 Q325,108 335,105 Q345,102 355,104 Q365,106 375,103 Q385,100 395,102 Q405,104 415,101 Q425,98 435,100 Q445,102 455,99 Q465,96 475,98 Q485,100 495,97 Q505,94 515,96 Q525,98 535,95 Q545,92 555,94 Q565,96 575,93 Q585,90 595,92 Q605,94 615,91 Q625,88 635,90"
+    fill="none"
+    stroke="#E85D8A"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    class="cake-frosting-light"
+    d="M100,120 Q108,115 118,116 Q128,118 135,115 Q145,112 155,114 Q165,116 175,113 Q185,110 195,112 Q205,114 215,111 Q225,108 235,110 Q245,112 255,109 Q265,106 275,108 Q285,110 295,107 Q305,104 315,106 Q325,108 335,105 Q345,102 355,104 Q365,106 375,103 Q385,100 395,102 Q405,104 415,101 Q425,98 435,100 Q445,102 455,99 Q465,96 475,98 Q485,100 495,97 Q505,94 515,96 Q525,98 535,95 Q545,92 555,94 Q565,96 575,93 Q585,90 595,92 Q605,94 615,91 Q625,88 635,90"
+    fill="none"
+    stroke="#F4B4CC"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.6"
+  />
+
+  {/* ── Top border — front edge (along front of top surface) ── */}
+  <path
+    class="cake-frosting"
+    d="M120,135 Q130,133 140,135 Q150,138 160,135 Q170,132 180,134 Q190,137 200,134 Q210,131 220,133 Q230,136 240,133 Q250,130 260,132 Q270,135 280,132 Q290,129 300,131 Q310,134 320,131 Q330,128 340,130 Q350,133 360,130 Q370,127 380,129 Q390,132 400,129 Q410,126 420,128 Q430,131 440,128 Q450,125 460,127 Q470,130 480,127 Q490,124 500,126 Q510,129 520,126 Q530,123 540,125 Q550,128 560,125 Q570,122 580,124 Q590,127 600,124 Q610,121 620,123 Q630,126 640,123 Q650,120 660,105"
+    fill="none"
+    stroke="#E85D8A"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    class="cake-frosting-light"
+    d="M120,135 Q130,133 140,135 Q150,138 160,135 Q170,132 180,134 Q190,137 200,134 Q210,131 220,133 Q230,136 240,133 Q250,130 260,132 Q270,135 280,132 Q290,129 300,131 Q310,134 320,131 Q330,128 340,130 Q350,133 360,130 Q370,127 380,129 Q390,132 400,129 Q410,126 420,128 Q430,131 440,128 Q450,125 460,127 Q470,130 480,127 Q490,124 500,126 Q510,129 520,126 Q530,123 540,125 Q550,128 560,125 Q570,122 580,124 Q590,127 600,124 Q610,121 620,123 Q630,126 640,123 Q650,120 660,105"
+    fill="none"
+    stroke="#F4B4CC"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.6"
+  />
+
+  {/* ── Left edge piping (vertical, front-left corner) ── */}
+  <path
+    class="cake-frosting"
+    d="M100,120 Q97,130 99,140 Q101,150 98,160 Q95,170 97,180 Q99,190 96,200 Q93,210 95,220 Q97,230 94,240 Q91,250 93,260 Q95,270 92,280 Q89,290 91,300 Q93,310 90,320 Q87,330 89,340 Q91,350 88,360 Q85,370 87,380 Q89,390 86,400 Q84,410 87,420 Q90,430 95,435 Q102,440 115,440"
+    fill="none"
+    stroke="#E85D8A"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    class="cake-frosting-light"
+    d="M100,120 Q97,130 99,140 Q101,150 98,160 Q95,170 97,180 Q99,190 96,200 Q93,210 95,220 Q97,230 94,240 Q91,250 93,260 Q95,270 92,280 Q89,290 91,300 Q93,310 90,320 Q87,330 89,340 Q91,350 88,360 Q85,370 87,380 Q89,390 86,400 Q84,410 87,420 Q90,430 95,435 Q102,440 115,440"
+    fill="none"
+    stroke="#F4B4CC"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.5"
+  />
+
+  {/* ── Right edge piping (vertical, front-right corner — slightly darker) ── */}
+  <path
+    class="cake-frosting cake-frosting-dark"
+    d="M660,105 Q663,115 661,125 Q659,135 662,145 Q665,155 663,165 Q661,175 664,185 Q667,195 665,205 Q663,215 666,225 Q669,235 667,245 Q665,255 668,265 Q671,275 669,285 Q667,295 670,305 Q673,315 671,325 Q669,335 672,345 Q675,355 673,365 Q671,375 674,385 Q676,395 660,395"
+    fill="none"
+    stroke="#D14A75"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    class="cake-frosting-light"
+    d="M660,105 Q663,115 661,125 Q659,135 662,145 Q665,155 663,165 Q661,175 664,185 Q667,195 665,205 Q663,215 666,225 Q669,235 667,245 Q665,255 668,265 Q671,275 669,285 Q667,295 670,305 Q673,315 671,325 Q669,335 672,345 Q675,355 673,365 Q671,375 674,385 Q676,395 660,395"
+    fill="none"
+    stroke="#F0A0BC"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.45"
+  />
+
+  {/* ── Bottom front edge piping ── */}
+  <path
+    class="cake-frosting"
+    d="M115,440 Q125,438 135,440 Q145,443 155,440 Q165,437 175,439 Q185,442 195,439 Q205,436 215,438 Q225,441 235,438 Q245,435 255,437 Q265,440 275,437 Q285,434 295,436 Q305,439 315,436 Q325,433 335,435 Q345,438 355,435 Q365,432 375,434 Q385,437 395,434 Q405,431 415,433 Q425,436 435,433 Q445,430 455,432 Q465,435 475,432 Q485,429 495,431 Q505,434 515,431 Q525,428 535,430 Q545,433 555,430 Q565,427 575,429 Q585,432 595,429 Q605,426 615,428 Q625,431 635,428 Q645,425 655,400 Q658,396 660,395"
+    fill="none"
+    stroke="#E85D8A"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    class="cake-frosting-light"
+    d="M115,440 Q125,438 135,440 Q145,443 155,440 Q165,437 175,439 Q185,442 195,439 Q205,436 215,438 Q225,441 235,438 Q245,435 255,437 Q265,440 275,437 Q285,434 295,436 Q305,439 315,436 Q325,433 335,435 Q345,438 355,435 Q365,432 375,434 Q385,437 395,434 Q405,431 415,433 Q425,436 435,433 Q445,430 455,432 Q465,435 475,432 Q485,429 495,431 Q505,434 515,431 Q525,428 535,430 Q545,433 555,430 Q565,427 575,429 Q585,432 595,429 Q605,426 615,428 Q625,431 635,428 Q645,425 655,400 Q658,396 660,395"
+    fill="none"
+    stroke="#F4B4CC"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.5"
+  />
+</svg>

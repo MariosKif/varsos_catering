@@ -1,0 +1,106 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Finger Food — Varsos Catering"
+  description="Χειροποίητα finger food ορεκτικά με ποιοτικά υλικά χωρίς συντηρητικά. Mini burgers, μπόμπες, καναπεδάκια και αλμυρά ορεκτικά από το 1987."
+>
+  <Header currentPath="/finger-food" />
+
+  {/* ─── Hero Banner ─── */}
+  <section class="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white pt-28 pb-16 px-4 sm:px-6 lg:px-8 lg:pt-36 lg:pb-20">
+    <div class="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-brand-100/60 blur-3xl" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-3xl text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-brand-600" data-gsap-fade>Finger Food</p>
+      <h1 class="mt-3 font-heading text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl" data-gsap-fade>
+        Χειροποίητα ορεκτικά για κάθε περίσταση
+      </h1>
+      <p class="mt-4 text-base leading-relaxed text-gray-500 sm:text-lg" data-gsap-fade>
+        Από το 1987 δημιουργούμε finger food με ποιοτικά υλικά χωρίς συντηρητικά — ιδανικά για δεξιώσεις, πάρτι και εταιρικά events.
+      </p>
+    </div>
+  </section>
+
+  {/* ─── Content ─── */}
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+        {/* Image placeholder */}
+        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
+          <svg class="h-20 w-20 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.379a48.474 48.474 0 00-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.169c0 .621-.504 1.125-1.125 1.125H4.125A1.125 1.125 0 013 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 016 13.12M12.265 3.11a.375.375 0 11-.53 0L12 2.845l.265.265z" />
+          </svg>
+        </div>
+
+        {/* Details */}
+        <div>
+          <h2 class="font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Η τέχνη του finger food</h2>
+          <p class="mt-4 leading-relaxed text-gray-500">
+            Αναζητάτε τις πιο νόστιμες ιδέες για finger food; Από το 1987 δημιουργούμε χειροποίητα ορεκτικά με ποιοτικά υλικά χωρίς συντηρητικά. Mini burgers, παραδοσιακές μπόμπες και αλμυρά ορεκτικά σε ποικιλία γεύσεων.
+          </p>
+          <p class="mt-4 leading-relaxed text-gray-500">
+            Κάθε κομμάτι φτιάχνεται με φρέσκα, επιλεγμένα υλικά και σερβίρεται σε κομψή παρουσίαση που εντυπωσιάζει τους καλεσμένους σας.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ─── Categories ─── */}
+  <section class="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <h2 class="font-heading text-2xl font-bold text-gray-900 text-center sm:text-3xl">Κατηγορίες Finger Food</h2>
+      <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          { title: 'Mini Burgers', desc: 'Χειροποίητα μικρά burgers με ποικιλία γεμίσεων — κλασικά, κοτόπουλο ή χορτοφαγικά.' },
+          { title: 'Παραδοσιακές Μπόμπες', desc: 'Τραγανές μπόμπες με τυρί, λουκάνικο ή λαχανικά σε αυθεντικές συνταγές.' },
+          { title: 'Καναπεδάκια', desc: 'Φινετσάτα καναπεδάκια με σολομό, κρέμα τυριού, prosciutto και φρέσκα βότανα.' },
+          { title: 'Αλμυρά Ορεκτικά', desc: 'Τυροπιτάκια, σπανακοπιτάκια, κρουασανάκια και σφολιατίνια σε ποικιλία γεύσεων.' },
+          { title: 'Bruschettas', desc: 'Ψημένο ψωμί με ντομάτα, βασιλικό, ελιές ή ανάμεικτα λαχανικά εποχής.' },
+          { title: 'Σουβλάκια & Sticks', desc: 'Μικρά σουβλάκια κοτόπουλου, γαρίδας ή λαχανικών με αρωματικές σάλτσες.' },
+        ].map(({ title, desc }) => (
+          <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
+            <h3 class="text-lg font-semibold text-gray-900">{title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-gray-500">{desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ─── CTA ─── */}
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-xl text-center">
+      <h2 class="font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Θέλετε finger food για την εκδήλωσή σας;</h2>
+      <p class="mt-4 text-gray-500">Επικοινωνήστε μαζί μας για να σχεδιάσουμε το ιδανικό μενού.</p>
+      <div class="mt-8">
+        <a
+          href="/epikoinonia"
+          class="inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
+        >
+          Επικοινωνία
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script>
+  import { gsap } from 'gsap';
+  gsap.defaults({ ease: 'power3.out' });
+  gsap.from('[data-gsap-fade]', {
+    y: 30,
+    opacity: 0,
+    duration: 0.9,
+    stagger: 0.15,
+    delay: 0.2,
+  });
+</script>

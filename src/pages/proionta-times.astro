@@ -1,0 +1,106 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Προϊόντα & Τιμές — Varsos Catering"
+  description="Πλήρης τιμοκατάλογος catering: brioche sandwiches, καναπεδάκια, μεζεδάκια, σαλάτες, ταψάκια, πίτες και τούρτες. Από το 1987."
+>
+  <Header currentPath="/proionta-times" />
+
+  {/* ─── Hero Banner ─── */}
+  <section class="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white pt-28 pb-16 px-4 sm:px-6 lg:px-8 lg:pt-36 lg:pb-20">
+    <div class="pointer-events-none absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-brand-100/60 blur-3xl" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-3xl text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-brand-600" data-gsap-fade>Τιμοκατάλογος</p>
+      <h1 class="mt-3 font-heading text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl" data-gsap-fade>
+        Προϊόντα & Τιμές
+      </h1>
+      <p class="mt-4 text-base leading-relaxed text-gray-500 sm:text-lg" data-gsap-fade>
+        Ανακαλύψτε τον πλήρη τιμοκατάλογό μας — ποιοτικό catering από το 1987.
+      </p>
+    </div>
+  </section>
+
+  {/* ─── Content ─── */}
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+        {/* Image placeholder */}
+        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
+          <svg class="h-20 w-20 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+        </div>
+
+        {/* Details */}
+        <div>
+          <h2 class="font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Ο κατάλογός μας</h2>
+          <p class="mt-4 leading-relaxed text-gray-500">
+            Ανακαλύψτε τον πλήρη τιμοκατάλογό μας με brioche sandwiches, καναπεδάκια, μεζεδάκια, σαλάτες, ταψάκια, χειροποίητες πίτες και τούρτες. Ποιοτικό catering από το 1987.
+          </p>
+          <p class="mt-4 leading-relaxed text-gray-500">
+            Οι τιμές αφορούν παραγγελίες ανά τεμάχιο ή ανά άτομο. Για μεγαλύτερες παραγγελίες ισχύουν ειδικές τιμές.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ─── Product Categories ─── */}
+  <section class="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <h2 class="font-heading text-2xl font-bold text-gray-900 text-center sm:text-3xl">Κατηγορίες Προϊόντων</h2>
+      <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          { title: 'Brioche Sandwiches', desc: 'Αφράτα brioche γεμισμένα με ποικιλία αλλαντικών, τυριών και σαλατικών.' },
+          { title: 'Καναπεδάκια', desc: 'Εκλεπτυσμένα καναπεδάκια με σολομό, γαρίδα, prosciutto και κρέμα τυριού.' },
+          { title: 'Μεζεδάκια', desc: 'Παραδοσιακά μεζεδάκια — κεφτεδάκια, ντολμαδάκια, φέτα ψητή και πιπεριές.' },
+          { title: 'Σαλάτες', desc: 'Φρέσκες σαλάτες εποχής — Caesar, ρόκα-παρμεζάνα, quinoa και μεσογειακή.' },
+          { title: 'Ταψάκια & Πίτες', desc: 'Χειροποίητες πίτες, μουσακάς, παστίτσιο και ταψάκια σε μερίδες ή ολόκληρα.' },
+          { title: 'Τούρτες & Γλυκά', desc: 'Τούρτες γενεθλίων, γάμου, βάπτισης και παραδοσιακά γλυκά ταψιού.' },
+        ].map(({ title, desc }) => (
+          <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
+            <h3 class="text-lg font-semibold text-gray-900">{title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-gray-500">{desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ─── CTA ─── */}
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-xl text-center">
+      <h2 class="font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Ζητήστε αναλυτικό τιμοκατάλογο</h2>
+      <p class="mt-4 text-gray-500">Στείλτε μας μήνυμα και θα σας αποστείλουμε τον πλήρη κατάλογο με τιμές.</p>
+      <div class="mt-8">
+        <a
+          href="/epikoinonia"
+          class="inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
+        >
+          Επικοινωνία
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script>
+  import { gsap } from 'gsap';
+  gsap.defaults({ ease: 'power3.out' });
+  gsap.from('[data-gsap-fade]', {
+    y: 30,
+    opacity: 0,
+    duration: 0.9,
+    stagger: 0.15,
+    delay: 0.2,
+  });
+</script>

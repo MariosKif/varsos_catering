@@ -1,0 +1,175 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Πακέτα Προσφορών — Varsos Catering"
+  description="Οικονομικά πακέτα catering στην Αθήνα με finger food, έτοιμα μενού και επιλογές ανά άτομο. Ιδανικά για σπίτι ή χώρο εκδήλωσης."
+>
+  <Header currentPath="/paketa-prosferon" />
+
+  {/* ─── Hero Banner ─── */}
+  <section class="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white pt-28 pb-16 px-4 sm:px-6 lg:px-8 lg:pt-36 lg:pb-20">
+    <div class="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-brand-100/60 blur-3xl" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-3xl text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-brand-600" data-gsap-fade>Πακέτα Προσφορών</p>
+      <h1 class="mt-3 font-heading text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl" data-gsap-fade>
+        Οικονομικά πακέτα catering
+      </h1>
+      <p class="mt-4 text-base leading-relaxed text-gray-500 sm:text-lg" data-gsap-fade>
+        Επιλέξτε το πακέτο που σας ταιριάζει — με φρέσκα υλικά, ποικιλία γεύσεων και εξαιρετικές τιμές.
+      </p>
+    </div>
+  </section>
+
+  {/* ─── Content ─── */}
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+        {/* Details */}
+        <div>
+          <h2 class="font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Catering για κάθε budget</h2>
+          <p class="mt-4 leading-relaxed text-gray-500">
+            Οικονομικά πακέτα catering στην Αθήνα με finger food, έτοιμα μενού και επιλογές ανά άτομο. Ιδανικά για το σπίτι ή σε χώρο εκδήλωσης, με φρέσκα υλικά και ποικιλία για μικρούς και μεγάλους.
+          </p>
+          <p class="mt-4 leading-relaxed text-gray-500">
+            Όλα τα πακέτα μας περιλαμβάνουν μεταφορά, setup και αναλώσιμα. Προσαρμόζουμε το μενού στις ανάγκες και τις προτιμήσεις σας.
+          </p>
+        </div>
+
+        {/* Image placeholder */}
+        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
+          <svg class="h-20 w-20 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ─── Packages ─── */}
+  <section class="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <h2 class="font-heading text-2xl font-bold text-gray-900 text-center sm:text-3xl">Τα πακέτα μας</h2>
+      <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          {
+            title: 'Basic',
+            desc: 'Ιδανικό για μικρές συγκεντρώσεις στο σπίτι. Περιλαμβάνει επιλογή από finger food και αναψυκτικά.',
+            highlight: false,
+          },
+          {
+            title: 'Premium',
+            desc: 'Πλήρες μενού με ποικιλία ορεκτικών, κυρίως πιάτου και επιδορπίου. Ιδανικό για πάρτι και εκδηλώσεις.',
+            highlight: true,
+          },
+          {
+            title: 'Deluxe',
+            desc: 'Ολοκληρωμένο catering με σερβιτόρους, setup, premium μενού και bar service για μεγάλες εκδηλώσεις.',
+            highlight: false,
+          },
+          {
+            title: 'Γάμος Classic',
+            desc: 'Ολοκληρωμένο πακέτο γάμου με welcome drinks, ορεκτικά, κυρίως πιάτο, γλυκό και wedding cake.',
+            highlight: false,
+          },
+          {
+            title: 'Γάμος Premium',
+            desc: 'Πολυτελές γαμήλιο πακέτο με cocktail bar, live cooking stations, premium μενού και σερβιτόρους.',
+            highlight: true,
+          },
+          {
+            title: 'Βάπτιση',
+            desc: 'Ειδικό πακέτο βάπτισης με παιδικό μενού, finger food για ενήλικες, τούρτα και candy bar.',
+            highlight: false,
+          },
+          {
+            title: 'Εταιρικό Light',
+            desc: 'Coffee break και ελαφρύ μπουφέ για συνέδρια και meetings. Καφέδες, χυμοί, κρουασάν και σάντουιτς.',
+            highlight: false,
+          },
+          {
+            title: 'Εταιρικό Full',
+            desc: 'Πλήρες εταιρικό catering με μπουφέ, σαλάτες, κυρίως πιάτα, επιδόρπια και ποτά για events και δεξιώσεις.',
+            highlight: false,
+          },
+          {
+            title: 'Πάρτι στο Σπίτι',
+            desc: 'Έτοιμο πακέτο για house party με ποικιλία finger food, πίτσες, mini burgers και αναψυκτικά.',
+            highlight: false,
+          },
+          {
+            title: 'BBQ Party',
+            desc: 'Πακέτο BBQ με ψητά κρεατικά, λαχανικά στη σχάρα, σαλάτες, σάλτσες και ψωμάκια brioche.',
+            highlight: false,
+          },
+          {
+            title: 'Healthy & Fit',
+            desc: 'Υγιεινό πακέτο με σαλάτες, wraps, φρούτα εποχής, smoothies και ενεργειακά snacks.',
+            highlight: false,
+          },
+          {
+            title: 'All Inclusive VIP',
+            desc: 'Το απόλυτο πακέτο: premium μενού, open bar, DJ, φωτισμός, σερβιτόροι και event coordinator.',
+            highlight: true,
+          },
+        ].map(({ title, desc, highlight }) => (
+          <div class:list={[
+            'rounded-2xl p-8 shadow-sm ring-1 transition-all hover:shadow-lg hover:-translate-y-1',
+            highlight ? 'bg-brand-600 text-white ring-brand-600' : 'bg-white ring-gray-900/5',
+          ]}>
+            <h3 class:list={['text-lg font-semibold', highlight ? 'text-white' : 'text-gray-900']}>{title}</h3>
+            <p class:list={['mt-2 text-sm leading-relaxed', highlight ? 'text-brand-100' : 'text-gray-500']}>{desc}</p>
+            <a
+              href="/epikoinonia"
+              class:list={[
+                'mt-6 inline-flex items-center gap-1 text-sm font-semibold transition-colors',
+                highlight ? 'text-white hover:text-brand-100' : 'text-brand-600 hover:text-brand-700',
+              ]}
+            >
+              Ζητήστε προσφορά
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+              </svg>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ─── CTA ─── */}
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-xl text-center">
+      <h2 class="font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Βρείτε το πακέτο που σας ταιριάζει</h2>
+      <p class="mt-4 text-gray-500">Επικοινωνήστε μαζί μας για εξατομικευμένη προσφορά βάσει αριθμού ατόμων και μενού.</p>
+      <div class="mt-8">
+        <a
+          href="/epikoinonia"
+          class="inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
+        >
+          Επικοινωνία
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script>
+  import { gsap } from 'gsap';
+  gsap.defaults({ ease: 'power3.out' });
+  gsap.from('[data-gsap-fade]', {
+    y: 30,
+    opacity: 0,
+    duration: 0.9,
+    stagger: 0.15,
+    delay: 0.2,
+  });
+</script>

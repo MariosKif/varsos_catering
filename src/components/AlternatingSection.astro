@@ -1,0 +1,83 @@
+---
+interface Props {
+  title: string;
+  text: string;
+  imageSide: 'left' | 'right';
+  iconPath: string;
+  bgClass?: string;
+}
+
+const { title, text, imageSide, iconPath, bgClass = '' } = Astro.props;
+const imageOrderClass = imageSide === 'right' ? 'md:order-last' : '';
+const slideFrom = imageSide === 'left' ? '-60' : '60';
+const textSlideFrom = imageSide === 'left' ? '60' : '-60';
+---
+
+<section
+  class:list={['overflow-hidden py-20 px-4 sm:px-6 lg:px-8', bgClass]}
+  data-alternating-section
+  data-image-side={imageSide}
+>
+  <div class="mx-auto max-w-6xl">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      {/* Image */}
+      <div class:list={['alt-image', imageOrderClass]} data-slide-from={slideFrom}>
+        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
+          <svg class="h-20 w-20 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d={iconPath} />
+          </svg>
+        </div>
+      </div>
+
+      {/* Text */}
+      <div class="alt-text" data-slide-from={textSlideFrom}>
+        <h2 class="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
+          {title}
+        </h2>
+        <p class="mt-4 text-base leading-relaxed text-gray-500 sm:text-lg">
+          {text}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.querySelectorAll<HTMLElement>('[data-alternating-section]').forEach((section) => {
+    const image = section.querySelector<HTMLElement>('.alt-image');
+    const text = section.querySelector<HTMLElement>('.alt-text');
+    if (!image || !text) return;
+
+    const imageFrom = Number(image.dataset.slideFrom) || -60;
+    const textFrom = Number(text.dataset.slideFrom) || 60;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 80%',
+        toggleActions: 'play none none none',
+      },
+    });
+
+    tl.from(image, {
+      x: imageFrom,
+      opacity: 0,
+      duration: 0.9,
+      ease: 'power3.out',
+    }).from(
+      text,
+      {
+        x: textFrom,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power3.out',
+      },
+      0.15
+    );
+  });
+</script>
