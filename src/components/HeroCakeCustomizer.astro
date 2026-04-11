@@ -433,6 +433,101 @@ import ColorSelector from './ColorSelector.astro';
   cropApplyBtn.addEventListener('click', () => { applyCrop(); });
   cropCancelBtn.addEventListener('click', cancelCrop);
 
+  /* ── Crop mode interactions: drag-pan, wheel-zoom, pinch-zoom ── */
+  const activePointers = new Map<number, { x: number; y: number }>();
+  let dragLast: { x: number; y: number } | null = null;
+  let pinchStart:
+    | { dist: number; scale: number; midX: number; midY: number }
+    | null = null;
+
+  function canvasPointFromEvent(e: PointerEvent | WheelEvent): { x: number; y: number } {
+    const r = cropCanvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  cropCanvas.addEventListener('pointerdown', (e) => {
+    if (!cropState) return;
+    cropCanvas.setPointerCapture(e.pointerId);
+    activePointers.set(e.pointerId, canvasPointFromEvent(e));
+    if (activePointers.size === 1) {
+      dragLast = canvasPointFromEvent(e);
+      pinchStart = null;
+    } else if (activePointers.size === 2) {
+      const pts = [...activePointers.values()];
+      const dx = pts[0].x - pts[1].x;
+      const dy = pts[0].y - pts[1].y;
+      pinchStart = {
+        dist: Math.hypot(dx, dy),
+        scale: cropState.imgScale,
+        midX: (pts[0].x + pts[1].x) / 2,
+        midY: (pts[0].y + pts[1].y) / 2,
+      };
+      dragLast = null;
+    }
+  });
+
+  cropCanvas.addEventListener('pointermove', (e) => {
+    if (!cropState || !activePointers.has(e.pointerId)) return;
+    const pt = canvasPointFromEvent(e);
+    activePointers.set(e.pointerId, pt);
+
+    if (activePointers.size === 1 && dragLast) {
+      cropState.imgX += pt.x - dragLast.x;
+      cropState.imgY += pt.y - dragLast.y;
+      dragLast = pt;
+      clampCropState();
+      drawCropCanvas();
+    } else if (activePointers.size === 2 && pinchStart) {
+      const pts = [...activePointers.values()];
+      const dx = pts[0].x - pts[1].x;
+      const dy = pts[0].y - pts[1].y;
+      const dist = Math.hypot(dx, dy);
+      const rawScale = pinchStart.scale * (dist / pinchStart.dist);
+      const minS = minCoverScale();
+      const clamped = Math.max(minS, Math.min(minS * 6, rawScale));
+      // Keep pinch midpoint anchored in image coordinates.
+      const mx = pinchStart.midX;
+      const my = pinchStart.midY;
+      const relX = (mx - cropState.imgX) / cropState.imgScale;
+      const relY = (my - cropState.imgY) / cropState.imgScale;
+      cropState.imgScale = clamped;
+      cropState.imgX = mx - relX * clamped;
+      cropState.imgY = my - relY * clamped;
+      clampCropState();
+      drawCropCanvas();
+    }
+  });
+
+  function endPointer(e: PointerEvent) {
+    activePointers.delete(e.pointerId);
+    if (activePointers.size < 2) pinchStart = null;
+    if (activePointers.size === 0) dragLast = null;
+  }
+  cropCanvas.addEventListener('pointerup', endPointer);
+  cropCanvas.addEventListener('pointercancel', endPointer);
+
+  cropCanvas.addEventListener(
+    'wheel',
+    (e) => {
+      if (!cropState) return;
+      e.preventDefault();
+      const pt = canvasPointFromEvent(e);
+      const factor = Math.exp(-e.deltaY * 0.0015);
+      const rawScale = cropState.imgScale * factor;
+      const minS = minCoverScale();
+      const clamped = Math.max(minS, Math.min(minS * 6, rawScale));
+      // Zoom around the cursor position.
+      const relX = (pt.x - cropState.imgX) / cropState.imgScale;
+      const relY = (pt.y - cropState.imgY) / cropState.imgScale;
+      cropState.imgScale = clamped;
+      cropState.imgX = pt.x - relX * clamped;
+      cropState.imgY = pt.y - relY * clamped;
+      clampCropState();
+      drawCropCanvas();
+    },
+    { passive: false }
+  );
+
   uploadInput.addEventListener('change', () => {
     const file = uploadInput.files?.[0];
     if (file) enterCropMode(file);
