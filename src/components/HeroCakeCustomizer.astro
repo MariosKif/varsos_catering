@@ -61,9 +61,7 @@ import ColorSelector from './ColorSelector.astro';
       class="relative mx-auto mt-12 max-w-2xl rounded-3xl bg-white p-3 shadow-2xl shadow-gray-900/8 ring-1 ring-gray-900/5 sm:p-5 lg:mt-16"
       data-gsap-fade
     >
-      {/* cake image wrapper */}
       <div id="cake-wrapper" class="relative mx-auto select-none overflow-hidden rounded-2xl">
-        {/* the actual cake photo — filter is updated via JS */}
         <img
           id="cake-image"
           src="/images/cake-base.jpg"
@@ -74,37 +72,29 @@ import ColorSelector from './ColorSelector.astro';
           draggable="false"
         />
 
-        {/* ── Upload overlay — positioned exactly over the white edible-print zone ──
-             The container is placed at the bounding box of the white area,
-             then clip-path trims it to the exact trapezoid shape.
-             User image uses object-fit:cover so it fills the entire zone. ── */}
-        <div
-          id="overlay-container"
-          class="pointer-events-none absolute overflow-hidden"
-          style="
-            left: 15.36%;
-            top: 17.19%;
-            width: 71.42%;
-            height: 45.02%;
-            clip-path: polygon(4% 1.3%, 94.4% 0%, 100% 99.6%, 0% 98.9%);
-          "
-          aria-hidden="true"
-        >
-          {/* user image — contained within the white print zone */}
+        {/* ── Display layer ─────────────────────────────────────
+             Shown whenever the user is not actively cropping. Holds
+             the warped white print plate and the overlay image, both
+             sized to the TARGET_W × TARGET_H nominal rectangle and
+             transformed with matrix3d into the cake's print-zone quad. */}
+        <div id="display-layer" class="absolute inset-0">
+          <div
+            id="print-plate"
+            class="pointer-events-none absolute left-0 top-0 origin-top-left bg-white will-change-transform"
+            style="width: 1100px; height: 460px;"
+            aria-hidden="true"
+          ></div>
           <img
             id="image-overlay"
             src=""
             alt=""
-            class="hidden absolute object-cover object-center opacity-[0.92]"
-            style="inset: 0; width: 100%; height: 100%; mix-blend-mode: multiply;"
+            class="hidden pointer-events-none absolute left-0 top-0 origin-top-left will-change-transform"
+            style="width: 1100px; height: 460px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.08));"
             draggable="false"
           />
-
-          {/* placeholder prompt — visible until user uploads */}
           <div
             id="preview-placeholder"
-            class="absolute flex flex-col items-center justify-center gap-2 text-center"
-            style="inset: 0;"
+            class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 text-center"
           >
             <svg class="h-10 w-10 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21zM9.75 9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -153,35 +143,50 @@ import ColorSelector from './ColorSelector.astro';
 <script>
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { fitRectToQuad, type Quad } from '../lib/perspectiveMatrix';
+  import {
+    preprocessFile,
+    renderCrop,
+    TARGET_W,
+    TARGET_H,
+    type CropRect,
+  } from '../lib/imagePipeline';
 
   gsap.registerPlugin(ScrollTrigger);
 
-  /* ── Constants ─────────────────────────────────────────── */
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  /* ── Constants ─────────────────────────────────────── */
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
   const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const ASPECT = TARGET_W / TARGET_H;
 
-  /* ── DOM refs ────────────────────────────────────────────── */
-  const cakeImage       = document.getElementById('cake-image')       as HTMLImageElement;
-  const overlayImg      = document.getElementById('image-overlay')    as HTMLImageElement;
-  const placeholder     = document.getElementById('preview-placeholder')!;
-  const uploadInput     = document.getElementById('cake-upload-input') as HTMLInputElement;
-  const uploadBtn       = document.getElementById('upload-btn')!;
-  const changeBtn       = document.getElementById('change-btn')!;
-  const removeBtn       = document.getElementById('remove-btn')!;
-  const uploadActions   = document.getElementById('upload-actions')!;
-  const uploadError     = document.getElementById('upload-error')!;
-  const cakeWrapper     = document.getElementById('cake-wrapper')!;
-  const dropHighlight   = document.getElementById('drop-highlight')!;
-  const colorBtns       = document.querySelectorAll<HTMLButtonElement>('[data-color-btn]');
+  // Cake print-zone corners in % of the cake wrapper's rendered size.
+  // Starting values from the existing clip-path math; fine-tuned in Task 7.
+  const PRINT_ZONE_CORNERS_PCT = {
+    tl: { x: 18.22, y: 17.78 },
+    tr: { x: 82.78, y: 17.19 },
+    br: { x: 86.78, y: 62.03 },
+    bl: { x: 15.36, y: 61.73 },
+  };
 
-  /* ── File validation ─────────────────────────────────────── */
+  /* ── DOM refs ──────────────────────────────────────── */
+  const cakeImage     = document.getElementById('cake-image')       as HTMLImageElement;
+  const cakeWrapper   = document.getElementById('cake-wrapper')!;
+  const printPlate    = document.getElementById('print-plate')      as HTMLDivElement;
+  const overlayImg    = document.getElementById('image-overlay')    as HTMLImageElement;
+  const placeholder   = document.getElementById('preview-placeholder')!;
+  const dropHighlight = document.getElementById('drop-highlight')!;
+  const uploadInput   = document.getElementById('cake-upload-input') as HTMLInputElement;
+  const uploadBtn     = document.getElementById('upload-btn')!;
+  const changeBtn     = document.getElementById('change-btn')!;
+  const removeBtn     = document.getElementById('remove-btn')!;
+  const uploadActions = document.getElementById('upload-actions')!;
+  const uploadError   = document.getElementById('upload-error')!;
+  const colorBtns     = document.querySelectorAll<HTMLButtonElement>('[data-color-btn]');
+
+  /* ── File validation ────────────────────────────────── */
   function validateFile(file: File): string | null {
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return 'Μόνο αρχεία JPG, PNG ή WebP.';
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      return 'Το αρχείο υπερβαίνει τα 5 MB.';
-    }
+    if (!ALLOWED_TYPES.includes(file.type)) return 'Μόνο αρχεία JPG, PNG ή WebP.';
+    if (file.size > MAX_FILE_SIZE) return 'Το αρχείο υπερβαίνει τα 5 MB.';
     return null;
   }
 
@@ -191,93 +196,68 @@ import ColorSelector from './ColorSelector.astro';
     setTimeout(() => uploadError.classList.add('hidden'), 4000);
   }
 
-  /* ── Image processing (blur-fill to fit any aspect ratio) ── */
-  async function processImage(file: File): Promise<string> {
-    const bitmap = await createImageBitmap(file);
-    const TARGET_W = 1100;
-    const TARGET_H = 460;
-    const srcW = bitmap.width;
-    const srcH = bitmap.height;
+  /* ── Perspective warp ───────────────────────────────── */
+  function getPrintZoneQuad(): Quad {
+    const rect = cakeWrapper.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    const p = PRINT_ZONE_CORNERS_PCT;
+    return [
+      { x: (p.tl.x / 100) * w, y: (p.tl.y / 100) * h },
+      { x: (p.tr.x / 100) * w, y: (p.tr.y / 100) * h },
+      { x: (p.br.x / 100) * w, y: (p.br.y / 100) * h },
+      { x: (p.bl.x / 100) * w, y: (p.bl.y / 100) * h },
+    ];
+  }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = TARGET_W;
-    canvas.height = TARGET_H;
-    const ctx = canvas.getContext('2d')!;
-
-    // Layer 1: Blurred background (cover-fill the entire canvas)
-    const coverScale = Math.max(TARGET_W / srcW, TARGET_H / srcH);
-    const bgW = Math.round(srcW * coverScale);
-    const bgH = Math.round(srcH * coverScale);
-    const bgX = Math.round((TARGET_W - bgW) / 2);
-    const bgY = Math.round((TARGET_H - bgH) / 2);
-
-    ctx.filter = 'blur(20px)';
-    ctx.drawImage(bitmap, bgX, bgY, bgW, bgH);
-    ctx.filter = 'none';
-
-    // Slight darkening so the sharp image stands out
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-    ctx.fillRect(0, 0, TARGET_W, TARGET_H);
-
-    // Layer 2: Sharp image (contain-fit, centred)
-    const fitScale = Math.min(TARGET_W / srcW, TARGET_H / srcH);
-    const fgW = Math.round(srcW * fitScale);
-    const fgH = Math.round(srcH * fitScale);
-    const fgX = Math.round((TARGET_W - fgW) / 2);
-    const fgY = Math.round((TARGET_H - fgH) / 2);
-
-    ctx.drawImage(bitmap, fgX, fgY, fgW, fgH);
-
-    bitmap.close();
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(URL.createObjectURL(blob!));
-      }, file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.92);
+  let warpPending = false;
+  function applyWarp() {
+    if (warpPending) return;
+    warpPending = true;
+    requestAnimationFrame(() => {
+      warpPending = false;
+      const matrix = fitRectToQuad(TARGET_W, TARGET_H, getPrintZoneQuad());
+      printPlate.style.transform = matrix;
+      overlayImg.style.transform = matrix;
     });
   }
 
-  /* ── Upload handling ────────────────────────────────────── */
+  const ro = new ResizeObserver(() => applyWarp());
+  ro.observe(cakeWrapper);
+  if (cakeImage.complete) applyWarp();
+  else cakeImage.addEventListener('load', () => applyWarp(), { once: true });
+
+  /* ── Overlay URL lifecycle ─────────────────────────── */
   let objectUrl: string | null = null;
 
-  async function showImage(file: File) {
-    const error = validateFile(file);
-    if (error) { showError(error); return; }
-
+  function setOverlayUrl(url: string) {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
-
-    objectUrl = await processImage(file);
-    overlayImg.src = objectUrl;
+    objectUrl = url;
+    overlayImg.src = url;
     overlayImg.alt = 'Προεπισκόπηση σχεδίου τούρτας';
     overlayImg.classList.remove('hidden');
-    gsap.fromTo(overlayImg, { opacity: 0 }, { opacity: 0.92, duration: 0.4, ease: 'power2.out' });
-
     placeholder.classList.add('hidden');
+    gsap.fromTo(overlayImg, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' });
     uploadBtn.classList.add('hidden');
     uploadActions.classList.remove('hidden');
     uploadActions.classList.add('flex');
     uploadError.classList.add('hidden');
-
-    changeBtn.focus();
   }
 
   function clearImage() {
-    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
-
     gsap.to(overlayImg, {
       opacity: 0,
       duration: 0.3,
       ease: 'power2.in',
       onComplete: () => {
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
         overlayImg.src = '';
         overlayImg.alt = '';
         overlayImg.classList.add('hidden');
       },
     });
-
     placeholder.classList.remove('hidden');
     gsap.fromTo(placeholder, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.2 });
-
     uploadBtn.classList.remove('hidden');
     uploadActions.classList.add('hidden');
     uploadActions.classList.remove('flex');
@@ -285,18 +265,61 @@ import ColorSelector from './ColorSelector.astro';
     uploadError.classList.add('hidden');
   }
 
+  /* ── Upload flow: auto cover-fit crop, no interactive UI yet ── */
+  let uploadToken = 0;
+
+  async function handleUpload(file: File) {
+    const error = validateFile(file);
+    if (error) { showError(error); return; }
+
+    const token = ++uploadToken;
+    let pre;
+    try {
+      pre = await preprocessFile(file);
+    } catch {
+      showError('Δεν ήταν δυνατή η ανάγνωση της εικόνας.');
+      return;
+    }
+    if (token !== uploadToken) { pre.bitmap.close(); return; }
+
+    // Cover-fit: crop a centred rectangle of TARGET aspect out of the bitmap.
+    const srcAspect = pre.width / pre.height;
+    let cw: number, ch: number;
+    if (srcAspect > ASPECT) {
+      // image is wider than target: full height, cropped width
+      ch = pre.height;
+      cw = Math.round(ch * ASPECT);
+    } else {
+      // image is taller than target: full width, cropped height
+      cw = pre.width;
+      ch = Math.round(cw / ASPECT);
+    }
+    const crop: CropRect = {
+      x: Math.round((pre.width - cw) / 2),
+      y: Math.round((pre.height - ch) / 2),
+      w: cw,
+      h: ch,
+    };
+
+    const url = await renderCrop(pre.bitmap, crop, { w: TARGET_W, h: TARGET_H }, 'image/jpeg');
+    pre.bitmap.close();
+    if (token !== uploadToken) { URL.revokeObjectURL(url); return; }
+
+    setOverlayUrl(url);
+    applyWarp();
+    changeBtn.focus();
+  }
+
   uploadInput.addEventListener('change', () => {
     const file = uploadInput.files?.[0];
-    if (file) showImage(file);
+    if (file) handleUpload(file);
   });
-
   uploadBtn.addEventListener('click', () => uploadInput.click());
   changeBtn.addEventListener('click', () => { uploadInput.value = ''; uploadInput.click(); });
   removeBtn.addEventListener('click', clearImage);
 
-  /* ── Drag & drop ────────────────────────────────────────── */
+  /* ── Drag & drop ────────────────────────────────────── */
   function preventDefaults(e: Event) { e.preventDefault(); e.stopPropagation(); }
-
   (['dragenter', 'dragover'] as const).forEach(evt =>
     cakeWrapper.addEventListener(evt, (e) => { preventDefaults(e); dropHighlight.classList.remove('hidden'); })
   );
@@ -305,16 +328,14 @@ import ColorSelector from './ColorSelector.astro';
   );
   cakeWrapper.addEventListener('drop', (e) => {
     const file = (e as DragEvent).dataTransfer?.files[0];
-    if (file) showImage(file);
+    if (file) handleUpload(file);
   });
 
-  /* ── Frosting color ─────────────────────────────────────── */
+  /* ── Frosting color ─────────────────────────────────── */
   colorBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter ?? 'hue-rotate(0deg)';
       cakeImage.style.filter = filter;
-
-      // update ARIA + visual states
       colorBtns.forEach((b) => {
         const isActive = b === btn;
         b.setAttribute('aria-checked', String(isActive));
@@ -334,10 +355,8 @@ import ColorSelector from './ColorSelector.astro';
     });
   });
 
-  /* ── GSAP entrance animations ───────────────────────────── */
+  /* ── GSAP entrance animations ───────────────────────── */
   gsap.defaults({ ease: 'power3.out' });
-
-  // Stagger-in for hero text
   gsap.from('[data-gsap-fade]', {
     y: 30,
     opacity: 0,
