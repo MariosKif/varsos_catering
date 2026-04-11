@@ -91,6 +91,27 @@ import ColorSelector from './ColorSelector.astro';
           </div>
         </div>
 
+        {/* ── Crop layer — shown only while the user is adjusting a fresh upload ── */}
+        <div id="crop-layer" class="absolute inset-0 hidden">
+          <canvas id="crop-canvas" class="absolute inset-0 block h-full w-full touch-none"></canvas>
+          <div id="crop-controls" class="absolute inset-x-0 bottom-3 flex justify-center gap-3 px-4">
+            <button
+              type="button"
+              id="crop-cancel-btn"
+              class="rounded-full bg-white/95 px-5 py-2 text-sm font-semibold text-gray-900 shadow-lg ring-1 ring-gray-900/10 backdrop-blur transition-all hover:bg-white active:scale-95"
+            >
+              Ακύρωση
+            </button>
+            <button
+              type="button"
+              id="crop-apply-btn"
+              class="rounded-full bg-gray-900 px-5 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:bg-gray-800 active:scale-95"
+            >
+              Εφαρμογή
+            </button>
+          </div>
+        </div>
+
         {/* drop zone highlight */}
         <div
           id="drop-highlight"
@@ -169,6 +190,11 @@ import ColorSelector from './ColorSelector.astro';
   const uploadActions = document.getElementById('upload-actions')!;
   const uploadError   = document.getElementById('upload-error')!;
   const colorBtns     = document.querySelectorAll<HTMLButtonElement>('[data-color-btn]');
+  const displayLayer  = document.getElementById('display-layer')!;
+  const cropLayer     = document.getElementById('crop-layer')!;
+  const cropCanvas    = document.getElementById('crop-canvas')      as HTMLCanvasElement;
+  const cropApplyBtn  = document.getElementById('crop-apply-btn')!;
+  const cropCancelBtn = document.getElementById('crop-cancel-btn')!;
 
   /* ── File validation ────────────────────────────────── */
   function validateFile(file: File): string | null {
@@ -256,10 +282,81 @@ import ColorSelector from './ColorSelector.astro';
     uploadError.classList.add('hidden');
   }
 
-  /* ── Upload flow: auto cover-fit crop, no interactive UI yet ── */
+  /* ── Crop mode state ───────────────────────────────────────────── */
+  type CropState = {
+    bitmap: ImageBitmap;
+    canvasW: number;
+    canvasH: number;
+    imgScale: number;
+    imgX: number;
+    imgY: number;
+    frame: { x: number; y: number; w: number; h: number };
+  };
+  let cropState: CropState | null = null;
   let uploadToken = 0;
 
-  async function handleUpload(file: File) {
+  function sizeCropCanvas(): { w: number; h: number } {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = cakeWrapper.getBoundingClientRect();
+    cropCanvas.width = Math.round(rect.width * dpr);
+    cropCanvas.height = Math.round(rect.height * dpr);
+    cropCanvas.style.width = `${rect.width}px`;
+    cropCanvas.style.height = `${rect.height}px`;
+    const ctx = cropCanvas.getContext('2d')!;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { w: rect.width, h: rect.height };
+  }
+
+  function minCoverScale(): number {
+    if (!cropState) return 1;
+    const { bitmap, frame } = cropState;
+    return Math.max(frame.w / bitmap.width, frame.h / bitmap.height);
+  }
+
+  function clampCropState() {
+    if (!cropState) return;
+    const { bitmap, imgScale, frame } = cropState;
+    const imgW = bitmap.width * imgScale;
+    const imgH = bitmap.height * imgScale;
+    // Frame must be fully inside rendered image → bound imgX, imgY.
+    const minX = frame.x + frame.w - imgW;
+    const maxX = frame.x;
+    const minY = frame.y + frame.h - imgH;
+    const maxY = frame.y;
+    cropState.imgX = Math.min(maxX, Math.max(minX, cropState.imgX));
+    cropState.imgY = Math.min(maxY, Math.max(minY, cropState.imgY));
+  }
+
+  let drawPending = false;
+  function drawCropCanvas() {
+    if (drawPending || !cropState) return;
+    drawPending = true;
+    requestAnimationFrame(() => {
+      drawPending = false;
+      if (!cropState) return;
+      const { bitmap, canvasW, canvasH, imgScale, imgX, imgY, frame } = cropState;
+      const ctx = cropCanvas.getContext('2d')!;
+      ctx.clearRect(0, 0, canvasW, canvasH);
+      ctx.drawImage(
+        bitmap,
+        imgX, imgY,
+        bitmap.width * imgScale,
+        bitmap.height * imgScale
+      );
+      // Dim everything outside the crop frame (4 rects around it).
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+      ctx.fillRect(0, 0, canvasW, frame.y);
+      ctx.fillRect(0, frame.y + frame.h, canvasW, canvasH - (frame.y + frame.h));
+      ctx.fillRect(0, frame.y, frame.x, frame.h);
+      ctx.fillRect(frame.x + frame.w, frame.y, canvasW - (frame.x + frame.w), frame.h);
+      // White frame outline for visibility.
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(frame.x + 1, frame.y + 1, frame.w - 2, frame.h - 2);
+    });
+  }
+
+  async function enterCropMode(file: File) {
     const error = validateFile(file);
     if (error) { showError(error); return; }
 
@@ -273,38 +370,72 @@ import ColorSelector from './ColorSelector.astro';
     }
     if (token !== uploadToken) { pre.bitmap.close(); return; }
 
-    // Cover-fit: crop a centred rectangle of TARGET aspect out of the bitmap.
-    const srcAspect = pre.width / pre.height;
-    let cw: number, ch: number;
-    if (srcAspect > ASPECT) {
-      // image is wider than target: full height, cropped width
-      ch = pre.height;
-      cw = Math.round(ch * ASPECT);
-    } else {
-      // image is taller than target: full width, cropped height
-      cw = pre.width;
-      ch = Math.round(cw / ASPECT);
+    displayLayer.classList.add('hidden');
+    cropLayer.classList.remove('hidden');
+
+    const { w: canvasW, h: canvasH } = sizeCropCanvas();
+
+    // Crop frame: inset from canvas edges, locked to ASPECT.
+    const frameMargin = 16;
+    let frameW = canvasW - frameMargin * 2;
+    let frameH = frameW / ASPECT;
+    if (frameH > canvasH - frameMargin * 2) {
+      frameH = canvasH - frameMargin * 2;
+      frameW = frameH * ASPECT;
     }
-    const crop: CropRect = {
-      x: Math.round((pre.width - cw) / 2),
-      y: Math.round((pre.height - ch) / 2),
-      w: cw,
-      h: ch,
+    const frame = {
+      x: (canvasW - frameW) / 2,
+      y: (canvasH - frameH) / 2,
+      w: frameW,
+      h: frameH,
     };
 
-    const mime: 'image/jpeg' | 'image/png' = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-    const url = await renderCrop(pre.bitmap, crop, { w: TARGET_W, h: TARGET_H }, mime);
-    pre.bitmap.close();
-    if (token !== uploadToken) { URL.revokeObjectURL(url); return; }
+    // COVER-FIT initial scale: frame must be fully covered by the image.
+    const imgScale = Math.max(frame.w / pre.width, frame.h / pre.height);
+    // Centre the image on the frame centre.
+    const imgX = frame.x + frame.w / 2 - (pre.width * imgScale) / 2;
+    const imgY = frame.y + frame.h / 2 - (pre.height * imgScale) / 2;
 
+    cropState = { bitmap: pre.bitmap, canvasW, canvasH, imgScale, imgX, imgY, frame };
+    drawCropCanvas();
+  }
+
+  async function applyCrop() {
+    if (!cropState) return;
+    const { bitmap, frame, imgScale, imgX, imgY } = cropState;
+    const crop: CropRect = {
+      x: (frame.x - imgX) / imgScale,
+      y: (frame.y - imgY) / imgScale,
+      w: frame.w / imgScale,
+      h: frame.h / imgScale,
+    };
+    const url = await renderCrop(bitmap, crop, { w: TARGET_W, h: TARGET_H }, 'image/jpeg');
+    bitmap.close();
+    cropState = null;
+
+    cropLayer.classList.add('hidden');
+    displayLayer.classList.remove('hidden');
     setOverlayUrl(url);
     applyWarp();
     changeBtn.focus();
   }
 
+  function cancelCrop() {
+    if (cropState) {
+      cropState.bitmap.close();
+      cropState = null;
+    }
+    uploadInput.value = '';
+    cropLayer.classList.add('hidden');
+    displayLayer.classList.remove('hidden');
+  }
+
+  cropApplyBtn.addEventListener('click', () => { applyCrop(); });
+  cropCancelBtn.addEventListener('click', cancelCrop);
+
   uploadInput.addEventListener('change', () => {
     const file = uploadInput.files?.[0];
-    if (file) handleUpload(file);
+    if (file) enterCropMode(file);
   });
   uploadBtn.addEventListener('click', () => uploadInput.click());
   changeBtn.addEventListener('click', () => { uploadInput.value = ''; uploadInput.click(); });
@@ -320,7 +451,7 @@ import ColorSelector from './ColorSelector.astro';
   );
   cakeWrapper.addEventListener('drop', (e) => {
     const file = (e as DragEvent).dataTransfer?.files[0];
-    if (file) handleUpload(file);
+    if (file) enterCropMode(file);
   });
 
   /* ── Frosting color ─────────────────────────────────── */
