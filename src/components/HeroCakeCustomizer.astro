@@ -501,7 +501,12 @@ import ColorSelector from './ColorSelector.astro';
   function endPointer(e: PointerEvent) {
     activePointers.delete(e.pointerId);
     if (activePointers.size < 2) pinchStart = null;
-    if (activePointers.size === 0) dragLast = null;
+    if (activePointers.size === 0) {
+      dragLast = null;
+    } else if (activePointers.size === 1) {
+      // Re-seed dragLast so single-finger pan resumes after a pinch ends.
+      dragLast = [...activePointers.values()][0];
+    }
   }
   cropCanvas.addEventListener('pointerup', endPointer);
   cropCanvas.addEventListener('pointercancel', endPointer);
