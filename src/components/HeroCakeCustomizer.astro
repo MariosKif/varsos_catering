@@ -136,6 +136,7 @@ import ColorSelector from './ColorSelector.astro';
     TARGET_W,
     TARGET_H,
     type CropRect,
+    type PreprocessedImage,
   } from '../lib/imagePipeline';
 
   gsap.registerPlugin(ScrollTrigger);
@@ -231,12 +232,16 @@ import ColorSelector from './ColorSelector.astro';
   }
 
   function clearImage() {
+    // Snapshot the URL to revoke now so a concurrent upload that replaces
+    // objectUrl mid-animation does not get its fresh blob revoked here.
+    const urlToRevoke = objectUrl;
+    objectUrl = null;
     gsap.to(overlayImg, {
       opacity: 0,
       duration: 0.3,
       ease: 'power2.in',
       onComplete: () => {
-        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+        if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
         overlayImg.src = '';
         overlayImg.alt = '';
         overlayImg.classList.add('hidden');
@@ -259,7 +264,7 @@ import ColorSelector from './ColorSelector.astro';
     if (error) { showError(error); return; }
 
     const token = ++uploadToken;
-    let pre;
+    let pre: PreprocessedImage;
     try {
       pre = await preprocessFile(file);
     } catch {
@@ -287,7 +292,8 @@ import ColorSelector from './ColorSelector.astro';
       h: ch,
     };
 
-    const url = await renderCrop(pre.bitmap, crop, { w: TARGET_W, h: TARGET_H }, 'image/jpeg');
+    const mime: 'image/jpeg' | 'image/png' = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    const url = await renderCrop(pre.bitmap, crop, { w: TARGET_W, h: TARGET_H }, mime);
     pre.bitmap.close();
     if (token !== uploadToken) { URL.revokeObjectURL(url); return; }
 
