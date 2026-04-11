@@ -3,30 +3,16 @@ import UploadControl from './UploadControl.astro';
 import ColorSelector from './ColorSelector.astro';
 
 /**
- * HeroCakeCustomizer
- * ------------------
- * Full-width hero section containing:
- *  1. Headline / sub-headline
- *  2. The cake preview with an upload overlay (clipped to the white area)
- *  3. Color selector for frosting
- *  4. Upload controls
- *  5. CTA button
+ * HeroCakeCustomizer — hero section with an interactive cake designer.
  *
- * ## How the overlay works
- * The cake image sits inside a wrapper with `position: relative`.
- * A sibling `<div>` is absolutely positioned over it with a CSS
- * `clip-path: polygon(…)` whose four vertices match the white edible-print
- * zone on the photograph.  The user's uploaded image is rendered inside
- * that clipped area with `object-fit: cover`, giving the illusion that the
- * image is printed onto the cake surface.  A subtle multiply blend mode
- * and slight opacity reduction make it look "printed" rather than pasted.
+ * The user's uploaded image is drawn onto a fixed 1100×460 rectangle
+ * (#image-overlay) that sits over a white #print-plate. Both are warped
+ * onto the cake photo's perspective trapezoid via a CSS matrix3d()
+ * computed by fitRectToQuad() from ../lib/perspectiveMatrix.
  *
- * ## How the frosting recolor works
- * CSS `filter: hue-rotate(…) saturate(…)` is applied **only** to the
- * `<img>` of the cake (not the overlay).  Because the cake body and
- * background are near-white / grey (low saturation), the rotation barely
- * affects them.  The highly-saturated pink frosting shifts convincingly
- * to the target hue.
+ * Frosting colour uses `filter: hue-rotate() saturate()` on the cake
+ * image only; the near-white cake body barely moves while the saturated
+ * pink frosting shifts convincingly to the target hue.
  */
 ---
 
