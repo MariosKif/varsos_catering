@@ -29,4 +29,8 @@ firebase-debug.log
 
 # playwright MCP screenshots
 .playwright-mcp/
-finger-food-full.png
+*.playwright.png
+finger-food-*.png
+keyboard-focus.png
+mobile-*.png
+filter-*.png
