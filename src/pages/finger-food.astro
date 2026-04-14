@@ -192,7 +192,7 @@ const categories: { id: Category | 'all'; label: string }[] = [
           <button
             type="button"
             role="tab"
-            aria-pressed={i === 0 ? 'true' : 'false'}
+            aria-selected={i === 0 ? 'true' : 'false'}
             data-category={cat.id}
             class:list={[
               'whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2',
@@ -258,7 +258,7 @@ const categories: { id: Category | 'all'; label: string }[] = [
       const cat = btn.dataset.category ?? 'all';
       tabs.forEach((t) => {
         const active = t === btn;
-        t.setAttribute('aria-pressed', active ? 'true' : 'false');
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
         t.classList.toggle('bg-gray-900', active);
         t.classList.toggle('text-white', active);
         t.classList.toggle('shadow-sm', active);
@@ -266,6 +266,8 @@ const categories: { id: Category | 'all'; label: string }[] = [
         t.classList.toggle('text-[#6b5d47]', !active);
         t.classList.toggle('border', !active);
         t.classList.toggle('border-[#e5dcc9]', !active);
+        t.classList.toggle('hover:border-brand-600', !active);
+        t.classList.toggle('hover:text-brand-700', !active);
       });
       applyFilter(cat);
     });
