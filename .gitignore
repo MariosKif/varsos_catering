@@ -26,3 +26,7 @@ firebase-debug.log
 
 # superpowers brainstorming workspace
 .superpowers/
+
+# playwright MCP screenshots
+.playwright-mcp/
+finger-food-full.png

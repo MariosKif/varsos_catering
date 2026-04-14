@@ -2,11 +2,52 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+const items = [
+  { img: '/images/finger-food/01-tyri-krema-solomos.jpg', name: 'Τυρί κρέμα & φρέσκος σολωμός' },
+  { img: '/images/finger-food/02-mini-cheeseburger.jpg', name: 'Mini Cheeseburger με ψωμί μπριός' },
+  { img: '/images/finger-food/03-loukanika-beikon.jpg', name: 'Λουκάνικα με μπέικον καραμελωμένα' },
+  { img: '/images/finger-food/04-solomos-rokka-graviera.jpg', name: 'Σολομός, μαρούλι, ρόκα, γραβιέρα' },
+  { img: '/images/finger-food/05-kypela-allantikon-tyrion.jpg', name: 'Κύπελα αλλαντικών & τυριών' },
+  { img: '/images/finger-food/06-salami-tyri-pasta-elia.jpg', name: 'Σαλάμι, τυρί, pasta ελιάς' },
+  { img: '/images/finger-food/07-keftedakia-tyri.jpg', name: 'Κεφτεδάκια χειροποίητα με τυρί' },
+  { img: '/images/finger-food/08-hotdog-krepaki.jpg', name: 'Hot dog με κρεπάκι, τυρί & σως' },
+  { img: '/images/finger-food/09-krouasan-voutirou.png', name: 'Κρουασάν βουτύρου διάφορα' },
+  { img: '/images/finger-food/10-snitselakia.jpg', name: 'Σνιτσελάκια' },
+  { img: '/images/finger-food/11-baketa-filadelfeia-prosouto.jpg', name: 'Μπακέτα με τυρί φιλαδέλφεια & προσούτο' },
+  { img: '/images/finger-food/12-ntomatinia-motsarela.jpg', name: 'Ντοματίνια με μοτσαρέλα' },
+  { img: '/images/finger-food/13-atomika-salatas-dip.jpg', name: 'Ατομικά είδη σαλάτας με/χωρίς dip κρέμα τυριού' },
+  { img: '/images/finger-food/14-tartaki-solomos-elia.jpg', name: 'Ταρτάκι με σολομό, ελιά, αγγούρι & σως' },
+  { img: '/images/finger-food/15-kotopoulo-beikon-zahari.jpg', name: 'Μπουκιές κοτόπουλου με μπέικον & καστανή ζάχαρη' },
+  { img: '/images/finger-food/16-soudakia-pikantiko-tyri.jpg', name: 'Σουδάκια αλμυρά με πικάντικη γέμιση τυριών' },
+  { img: '/images/finger-food/17-kritsinia-prosouto.jpg', name: 'Κριτσίνια με προσούτο & φιλαδέλφεια' },
+  { img: '/images/finger-food/18-spanakotyropita.jpg', name: 'Σπανακοτυρόπιτα χωριάτικη χειροποίητη' },
+  { img: '/images/finger-food/19-tyropitaki-sousami.jpg', name: 'Τυροπιτάκι με σουσάμι' },
+  { img: '/images/finger-food/20-tyrokafteri-salami.jpg', name: 'Τυροκαυτερή με σαλάμι & ελιά' },
+  { img: '/images/finger-food/21-boukitses-finger.jpg', name: 'Μπουκίτσες finger' },
+  { img: '/images/finger-food/22-bobes-brios.jpg', name: 'Μπόμπες διάφορες μπριός' },
+  { img: '/images/finger-food/23-piatela-tyrion-allantikon.jpg', name: 'Πιατέλα τυριών & αλλαντικών για απεριτίφ' },
+  { img: '/images/finger-food/24-tyroboukitses.jpg', name: 'Τυρομπουκίτσες' },
+  { img: '/images/finger-food/25-souvlakia-kotopoulo-ananas.jpg', name: 'Σουβλάκια κοτόπουλου με πιπεριά & ανανά' },
+  { img: '/images/finger-food/26-psito-hoirino-rolo.jpg', name: 'Ψητό χοιρινό ρολό' },
+  { img: '/images/finger-food/27-diskos-tyrion-allantikon.jpg', name: 'Δίσκος τυριών & αλλαντικών για απεριτίφ' },
+  { img: '/images/finger-food/28-soudakia-zampon-tonos.jpg', name: 'Σουδάκια αλμυρά με ζαμπόν, κοτόπουλο, τόνο' },
+  { img: '/images/finger-food/29-fterougies-kotopoulo-bbq.jpg', name: 'Φτερούγες κοτόπουλου ψητές ή με σάλτσα BBQ' },
+];
+
+const buildingBlocks = [
+  { label: 'Βάση', desc: 'Μπακέτα, crackers ή κριτσίνια.' },
+  { label: 'Τυριά', desc: 'Επιλογή 1-2 γεύσεων ανά πιατέλα.' },
+  { label: 'Spreads & σως', desc: 'Μαγιονέζα, μουστάρδα, κρέμα τυριού, dips.' },
+  { label: 'Πρωτεΐνη', desc: 'Αλλαντικά, κοτόπουλο, σολομός ή γαρίδες.' },
+  { label: 'Συνοδευτικά', desc: 'Λαχανικά εποχής & ελιές.' },
+  { label: 'Φρούτα (προαιρετικά)', desc: 'Εποχιακά φρούτα για φρεσκάδα.' },
+];
 ---
 
 <Layout
-  title="Finger Food — Varsos Catering"
-  description="Χειροποίητα finger food ορεκτικά με ποιοτικά υλικά χωρίς συντηρητικά. Mini burgers, μπόμπες, καναπεδάκια και αλμυρά ορεκτικά από το 1987."
+  title="Finger Food — 20+ Ιδέες | Varsos Catering"
+  description="Χειροποίητα finger food με ποιοτικά υλικά χωρίς συντηρητικά. 20+ ιδέες για παιδικά πάρτι, δεξιώσεις και εταιρικά events — από το 1987."
 >
   <Header currentPath="/finger-food" />
 
@@ -16,57 +57,112 @@ import Footer from '../components/Footer.astro';
     <div class="relative mx-auto max-w-3xl text-center">
       <p class="text-sm font-semibold uppercase tracking-widest text-brand-600" data-gsap-fade>Finger Food</p>
       <h1 class="mt-3 font-heading text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl" data-gsap-fade>
-        Χειροποίητα ορεκτικά για κάθε περίσταση
+        Finger food για κάθε περίσταση — 20+ ιδέες
       </h1>
       <p class="mt-4 text-base leading-relaxed text-gray-500 sm:text-lg" data-gsap-fade>
-        Από το 1987 δημιουργούμε finger food με ποιοτικά υλικά χωρίς συντηρητικά — ιδανικά για δεξιώσεις, πάρτι και εταιρικά events.
+        Χειροποίητα ορεκτικά με ποιοτικά υλικά χωρίς συντηρητικά. Ιδανικά για παιδικά πάρτι, δεξιώσεις, βαφτίσεις και εταιρικά events.
       </p>
     </div>
   </section>
 
-  {/* ─── Content ─── */}
+  {/* ─── Intro ─── */}
   <section class="py-20 px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-6xl">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-        {/* Image placeholder */}
-        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
-          <svg class="h-20 w-20 text-brand-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.379a48.474 48.474 0 00-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.169c0 .621-.504 1.125-1.125 1.125H4.125A1.125 1.125 0 013 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 016 13.12M12.265 3.11a.375.375 0 11-.53 0L12 2.845l.265.265z" />
-          </svg>
+        <div class="aspect-[4/3] overflow-hidden rounded-2xl ring-1 ring-gray-900/5">
+          <img
+            src="/images/finger-food/23-piatela-tyrion-allantikon.jpg"
+            alt="Πιατέλα τυριών και αλλαντικών Varsos"
+            class="h-full w-full object-cover"
+            loading="eager"
+          />
         </div>
-
-        {/* Details */}
         <div>
           <h2 class="font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Η τέχνη του finger food</h2>
           <p class="mt-4 leading-relaxed text-gray-500">
-            Αναζητάτε τις πιο νόστιμες ιδέες για finger food; Από το 1987 δημιουργούμε χειροποίητα ορεκτικά με ποιοτικά υλικά χωρίς συντηρητικά. Mini burgers, παραδοσιακές μπόμπες και αλμυρά ορεκτικά σε ποικιλία γεύσεων.
+            Ψάχνετε νόστιμες ιδέες για το finger food ενός παιδικού πάρτι ή μιας δεξίωσης; Από το 1987 φτιάχνουμε καθημερινά χειροποίητα ορεκτικά με φρέσκα, επιλεγμένα υλικά και χωρίς συντηρητικά.
           </p>
           <p class="mt-4 leading-relaxed text-gray-500">
-            Κάθε κομμάτι φτιάχνεται με φρέσκα, επιλεγμένα υλικά και σερβίρεται σε κομψή παρουσίαση που εντυπωσιάζει τους καλεσμένους σας.
+            Για παιδικά πάρτι προτιμήστε απλές, νόστιμες γεύσεις. Για ενήλικες δώστε βάρος σε ποικιλία αλλαντικών και τυριών. Για μικτές παρέες, ένας συνδυασμός 2-3 βασικών επιλογών δουλεύει τέλεια.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  {/* ─── Categories ─── */}
+  {/* ─── Gallery ─── */}
   <section class="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-6xl">
-      <h2 class="font-heading text-2xl font-bold text-gray-900 text-center sm:text-3xl">Κατηγορίες Finger Food</h2>
-      <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {[
-          { title: 'Mini Burgers', desc: 'Χειροποίητα μικρά burgers με ποικιλία γεμίσεων — κλασικά, κοτόπουλο ή χορτοφαγικά.' },
-          { title: 'Παραδοσιακές Μπόμπες', desc: 'Τραγανές μπόμπες με τυρί, λουκάνικο ή λαχανικά σε αυθεντικές συνταγές.' },
-          { title: 'Καναπεδάκια', desc: 'Φινετσάτα καναπεδάκια με σολομό, κρέμα τυριού, prosciutto και φρέσκα βότανα.' },
-          { title: 'Αλμυρά Ορεκτικά', desc: 'Τυροπιτάκια, σπανακοπιτάκια, κρουασανάκια και σφολιατίνια σε ποικιλία γεύσεων.' },
-          { title: 'Bruschettas', desc: 'Ψημένο ψωμί με ντομάτα, βασιλικό, ελιές ή ανάμεικτα λαχανικά εποχής.' },
-          { title: 'Σουβλάκια & Sticks', desc: 'Μικρά σουβλάκια κοτόπουλου, γαρίδας ή λαχανικών με αρωματικές σάλτσες.' },
-        ].map(({ title, desc }) => (
+      <div class="text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-brand-600">Επιλογές</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-gray-900 sm:text-3xl">29 χειροποίητες ιδέες finger food</h2>
+        <p class="mt-4 mx-auto max-w-2xl text-gray-500">
+          Mini burgers, καναπεδάκια, σουβλάκια, μπόμπες μπριός, τυρόπιτες και πιατέλες αλλαντικών — όλα φτιαγμένα στο εργαστήριό μας.
+        </p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+        {items.map(({ img, name }) => (
+          <figure class="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 transition hover:shadow-md">
+            <div class="aspect-square overflow-hidden">
+              <img
+                src={img}
+                alt={name}
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            <figcaption class="p-4 text-sm font-medium leading-snug text-gray-900">
+              {name}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ─── How to build it ─── */}
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <div class="text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-brand-600">Οδηγός</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-gray-900 sm:text-3xl">Πώς στήνουμε το finger food σας</h2>
+        <p class="mt-4 mx-auto max-w-2xl text-gray-500">
+          Ξεκινήστε με 3-4 βασικά υλικά και δημιουργήστε πολλαπλούς συνδυασμούς — έτσι εξασφαλίζετε σωστή ποικιλία χωρίς περιττή σπατάλη.
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {buildingBlocks.map(({ label, desc }, i) => (
           <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
-            <h3 class="text-lg font-semibold text-gray-900">{title}</h3>
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600">
+              {i + 1}
+            </span>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900">{label}</h3>
             <p class="mt-2 text-sm leading-relaxed text-gray-500">{desc}</p>
           </div>
         ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ─── Why Varsos ─── */}
+  <section class="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <h2 class="font-heading text-2xl font-bold text-gray-900 text-center sm:text-3xl">Γιατί Varsos</h2>
+      <div class="mt-12 grid gap-8 sm:grid-cols-3">
+        <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
+          <h3 class="text-lg font-semibold text-gray-900">Αγνά υλικά</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-500">Φρέσκα υλικά, χωρίς συντηρητικά. Παρασκευή αυθημερόν.</p>
+        </div>
+        <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
+          <h3 class="text-lg font-semibold text-gray-900">Ποικιλία γεύσεων</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-500">Από mini burgers και παραδοσιακές μπόμπες έως δημιουργικά αλμυρά ορεκτικά.</p>
+        </div>
+        <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
+          <h3 class="text-lg font-semibold text-gray-900">Εύκολο σερβίρισμα</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-500">Μερίδες finger-friendly που δεν διακόπτουν το παιχνίδι ή τη συζήτηση.</p>
+        </div>
       </div>
     </div>
   </section>
