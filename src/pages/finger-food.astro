@@ -253,8 +253,51 @@ const categories: { id: Category | 'all'; label: string }[] = [
       </div>
     </div>
   </section>
-  <section id="why" class="py-16 px-4"><div class="mx-auto max-w-6xl">[why varsos placeholder]</div></section>
-  <section id="cta" class="py-16 px-4"><div class="mx-auto max-w-6xl">[final cta placeholder]</div></section>
+  <section id="why" class="bg-[#faf7f2] py-20 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+      <h2 class="text-center font-heading text-3xl sm:text-4xl font-bold text-gray-900">Γιατί Varsos</h2>
+      <div class="mt-12 grid gap-6 sm:grid-cols-3">
+        {[
+          { icon: '🌿', title: 'Αγνά υλικά',         desc: 'Φρέσκα υλικά χωρίς συντηρητικά. Παρασκευή αυθημερόν.' },
+          { icon: '🍽️', title: 'Ποικιλία γεύσεων',   desc: '29 ιδέες — από mini burgers έως παραδοσιακές μπόμπες.' },
+          { icon: '⏱️', title: 'Από το 1987',         desc: 'Σχεδόν 40 χρόνια εμπειρίας στην Αθήνα.' },
+        ].map(({ icon, title, desc }) => (
+          <div class="rounded-2xl bg-white p-8 ring-1 ring-[#ece5d6]" data-gsap-reveal>
+            <div class="text-3xl" aria-hidden="true">{icon}</div>
+            <h3 class="mt-3 text-lg font-semibold text-gray-900">{title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-[#6b5d47]">{desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="cta" class="relative overflow-hidden bg-gradient-to-br from-brand-600 to-brand-700 py-20 px-4 sm:px-6 lg:px-8 text-white">
+    <div class="pointer-events-none absolute -top-20 -right-20 h-80 w-80 rounded-full bg-white/10" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-black/10" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-xl text-center">
+      <h2 class="font-heading text-3xl sm:text-4xl font-bold">Ας στήσουμε το μενού σας</h2>
+      <p class="mt-4 text-white/85">Καλέστε μας ή στείλτε WhatsApp — απαντάμε άμεσα.</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a
+          href={PHONE_HREF}
+          aria-label={`Καλέστε Varsos Catering στο ${PHONE_DISPLAY}`}
+          class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-700 shadow-lg transition hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-700"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267a11.036 11.036 0 006.72 6.72l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-7.18 0-13-5.82-13-13V3.5z" /></svg>
+          {PHONE_DISPLAY}
+        </a>
+        <a
+          href={WHATSAPP_URL}
+          aria-label="Επικοινωνία μέσω WhatsApp"
+          class="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#1ebe57] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-700"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.23h.004c5.46 0 9.91-4.45 9.91-9.92 0-2.65-1.03-5.14-2.9-7.01A9.825 9.825 0 0012.05 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.21 8.21 0 012.42 5.82c0 4.55-3.7 8.25-8.24 8.25a8.21 8.21 0 01-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 01-1.26-4.4c0-4.54 3.7-8.24 8.24-8.24zm-4.42 4.54c-.21 0-.55.08-.84.4-.29.32-1.1 1.08-1.1 2.63s1.13 3.05 1.29 3.26c.16.21 2.2 3.36 5.33 4.7 2.6 1.11 3.13.89 3.69.84.56-.05 1.82-.75 2.08-1.48.26-.72.26-1.34.18-1.47-.08-.14-.29-.22-.6-.38-.31-.16-1.82-.9-2.1-1-.28-.1-.49-.15-.7.15-.21.31-.8 1-.98 1.21-.18.21-.36.23-.67.08-.31-.16-1.3-.48-2.48-1.53-.92-.82-1.53-1.83-1.71-2.14-.18-.31-.02-.48.13-.63.14-.14.31-.37.47-.55.15-.19.21-.32.31-.53.1-.21.05-.4-.03-.55-.08-.15-.7-1.68-.96-2.3-.25-.6-.51-.52-.7-.53-.18-.01-.39-.01-.6-.01z" /></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
 
   <Footer />
 </Layout>
