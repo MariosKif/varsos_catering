@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import StickyContactFab from '../components/StickyContactFab.astro';
 
 const PHONE_DISPLAY = '211 800 2214';
 const PHONE_HREF = 'tel:+302118002214';
@@ -299,6 +300,13 @@ const categories: { id: Category | 'all'; label: string }[] = [
     </div>
   </section>
 
+  <StickyContactFab
+    phoneHref={PHONE_HREF}
+    phoneLabel={`Καλέστε Varsos Catering στο ${PHONE_DISPLAY}`}
+    whatsappUrl={WHATSAPP_URL}
+    watchOutElementId="hero"
+    hideOnElementId="cta"
+  />
   <Footer />
 </Layout>
 
