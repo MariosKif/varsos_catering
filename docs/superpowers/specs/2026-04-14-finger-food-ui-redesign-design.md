@@ -52,7 +52,7 @@ Top-to-bottom flow on `/finger-food`:
 - Copy: 1-2 sentences about kid-friendly finger food (mini burgers, hot dogs, σνιτσελάκια, κεφτεδάκια, μπόμπες).
 - CTAs: phone pill (brand orange) + WhatsApp pill (`#25D366`).
 - Right side: 2×2 grid of 4 images — `02-mini-cheeseburger.jpg`, `08-hotdog-krepaki.jpg`, `10-snitselakia.jpg`, `07-keftedakia-tyri.jpg`.
-- WhatsApp link: `https://wa.me/302118002214` (using same landline number; update to a dedicated WA number if one exists — TBD by owner).
+- WhatsApp link: the owner will provide the WhatsApp number later. Implement the button with a single config constant `WHATSAPP_URL` at the top of `finger-food.astro` (placeholder `#` until the number is shared), so all WhatsApp CTAs on the page update from one place.
 
 ### 3. Tabbed gallery
 
@@ -161,6 +161,7 @@ Captured in the section detail blocks above. The existing `items` data array in 
 - Sticky mobile FAB appears on scroll and hides when off-screen contact zones are already visible.
 - Lighthouse accessibility score ≥ 95.
 
-## Open items (to confirm before implementation)
+## Open items
 
-- Whether there's a dedicated WhatsApp number or the landline `211 800 2214` is WA-enabled.
+- **WhatsApp number** — will be provided by the owner after implementation. All WhatsApp buttons wire through the `WHATSAPP_URL` constant; swap the value once the number arrives (no other code changes needed).
+- The primary phone `211 800 2214` is Varsos's second landline — use it as-is on all phone CTAs.
