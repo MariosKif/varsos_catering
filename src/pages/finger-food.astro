@@ -73,10 +73,50 @@ const categories: { id: Category | 'all'; label: string }[] = [
 >
   <Header currentPath="/finger-food" />
 
-  <section id="hero" class="pt-28 pb-16 px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-6xl text-center">
-      <h1 class="font-heading text-4xl font-bold">Finger Food</h1>
-      <p class="mt-4 text-gray-500">Scaffold — sections below will fill in task-by-task.</p>
+  <section id="hero" class="relative overflow-hidden bg-gradient-to-b from-[#fefaf3] to-[#faf7f2] pt-28 pb-20 px-4 sm:px-6 lg:px-8 lg:pt-36">
+    <div class="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-brand-100/50 blur-3xl" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl">
+      <div class="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-12 items-center">
+        <div data-gsap-fade>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-600">— Finger Food · Από το 1987</p>
+          <h1 class="mt-4 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight text-gray-900">
+            Χειροποίητα <em class="italic text-brand-600">ορεκτικά</em><br class="hidden sm:inline" />
+            για κάθε στιγμή.
+          </h1>
+          <p class="mt-5 max-w-xl text-base sm:text-lg leading-relaxed text-[#6b5d47]">
+            29 ιδέες finger food με φρέσκα υλικά, χωρίς συντηρητικά. Ιδανικά για παιδικά πάρτι, δεξιώσεις, βαφτίσεις και εταιρικά events.
+          </p>
+          <div class="mt-7 flex flex-wrap gap-3">
+            <a
+              href={PHONE_HREF}
+              aria-label={`Καλέστε Varsos Catering στο ${PHONE_DISPLAY}`}
+              class="inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267a11.036 11.036 0 006.72 6.72l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-7.18 0-13-5.82-13-13V3.5z" /></svg>
+              {PHONE_DISPLAY}
+            </a>
+            <a
+              href="#gallery"
+              class="inline-flex items-center gap-2 rounded-full bg-white border border-[#e5dcc9] px-6 py-3 text-sm font-semibold text-[#6b5d47] transition hover:border-brand-600 hover:text-brand-700"
+            >
+              Δείτε τις ιδέες
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clip-rule="evenodd" /></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4" data-gsap-fade>
+          <div class="row-span-2 aspect-[3/4] overflow-hidden rounded-3xl ring-1 ring-black/5">
+            <img src="/images/finger-food/02-mini-cheeseburger.jpg" alt="Mini cheeseburger με ψωμί μπριός" class="h-full w-full object-cover" loading="eager" />
+          </div>
+          <div class="aspect-square overflow-hidden rounded-2xl ring-1 ring-black/5">
+            <img src="/images/finger-food/25-souvlakia-kotopoulo-ananas.jpg" alt="Σουβλάκια κοτόπουλου" class="h-full w-full object-cover" loading="eager" />
+          </div>
+          <div class="aspect-square overflow-hidden rounded-2xl ring-1 ring-black/5">
+            <img src="/images/finger-food/04-solomos-rokka-graviera.jpg" alt="Σολομός με ρόκα και γραβιέρα" class="h-full w-full object-cover" loading="eager" />
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
