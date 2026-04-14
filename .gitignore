@@ -23,3 +23,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 firebase-debug.log
+
+# superpowers brainstorming workspace
+.superpowers/
