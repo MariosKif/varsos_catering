@@ -243,7 +243,7 @@ const categories: { id: Category | 'all'; label: string }[] = [
           { label: 'Φρούτα (προαιρετικά)',     desc: 'Εποχιακά φρούτα για φρεσκάδα.' },
         ].map((block, i) => (
           <div class="rounded-2xl bg-[#faf7f2] p-6 ring-1 ring-[#ece5d6]" data-gsap-reveal>
-            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
+            <span aria-hidden="true" class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
               {i + 1}
             </span>
             <h3 class="mt-4 text-lg font-semibold text-gray-900">{block.label}</h3>
