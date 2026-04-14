@@ -242,7 +242,7 @@ const categories: { id: Category | 'all'; label: string }[] = [
           { label: 'Συνοδευτικά',              desc: 'Λαχανικά εποχής & ελιές.' },
           { label: 'Φρούτα (προαιρετικά)',     desc: 'Εποχιακά φρούτα για φρεσκάδα.' },
         ].map((block, i) => (
-          <div class="rounded-2xl bg-[#faf7f2] p-6 ring-1 ring-[#ece5d6]" data-gsap-reveal>
+          <div class="rounded-2xl bg-[#faf7f2] p-6 ring-1 ring-[#ece5d6]">
             <span aria-hidden="true" class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
               {i + 1}
             </span>
@@ -263,7 +263,7 @@ const categories: { id: Category | 'all'; label: string }[] = [
           { icon: '🍽️', title: 'Ποικιλία γεύσεων',   desc: '29 ιδέες — από mini burgers έως παραδοσιακές μπόμπες.' },
           { icon: '⏱️', title: 'Από το 1987',         desc: 'Σχεδόν 40 χρόνια εμπειρίας στην Αθήνα.' },
         ].map(({ icon, title, desc }) => (
-          <div class="rounded-2xl bg-white p-8 ring-1 ring-[#ece5d6]" data-gsap-reveal>
+          <div class="rounded-2xl bg-white p-8 ring-1 ring-[#ece5d6]">
             <div class="text-3xl" aria-hidden="true">{icon}</div>
             <h3 class="mt-3 text-lg font-semibold text-gray-900">{title}</h3>
             <p class="mt-2 text-sm leading-relaxed text-[#6b5d47]">{desc}</p>
@@ -314,12 +314,10 @@ const categories: { id: Category | 'all'; label: string }[] = [
 
 <script>
   import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (!prefersReducedMotion) {
-    gsap.registerPlugin(ScrollTrigger);
     gsap.defaults({ ease: 'power3.out' });
 
     gsap.from('[data-gsap-fade]', {
@@ -328,19 +326,6 @@ const categories: { id: Category | 'all'; label: string }[] = [
       duration: 0.9,
       stagger: 0.15,
       delay: 0.2,
-    });
-
-    document.querySelectorAll<HTMLElement>('[data-gsap-reveal]').forEach((el) => {
-      gsap.from(el, {
-        y: 30,
-        opacity: 0,
-        duration: 0.7,
-        scrollTrigger: {
-          trigger: el,
-          start: 'top 85%',
-          toggleActions: 'play none none none',
-        },
-      });
     });
   }
 
